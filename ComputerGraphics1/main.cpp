@@ -1,5 +1,3 @@
-
-
 #include "TriangleComponent.h"
 #include "Game.h"
 #include "TriangleGame.h"

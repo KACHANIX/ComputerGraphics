@@ -10,7 +10,7 @@ void TriangleGame::Initialize()
 	components.push_back(triangle);
 }
 
-void TriangleGame::Update(float deltaTime)
+void TriangleGame::Update(float delta_time)
 {
-	Game::Update(deltaTime);
+	Game::Update(delta_time);
 }

@@ -131,7 +131,7 @@ void Game::PrepareFrame()
 	context->RSSetState(rast_state);
 
 
-	float color[] = { 0.0f, 0.1f, 0.1f, 1.0f };
+	float color[] = { 1.0f, 1.0f, 0.0f, 0.0f };
 	context->ClearRenderTargetView(render_view, color);
 
 }
@@ -210,8 +210,13 @@ LRESULT Game::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lpa
 		if (static_cast<unsigned int>(wparam) == 27)
 		{
 			PostQuitMessage(0);
+			Exit();
 		}
 		return 0;
+	}
+	case WM_CLOSE:
+	{
+		Exit();
 	}
 	default:
 	{

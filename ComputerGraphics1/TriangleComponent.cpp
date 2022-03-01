@@ -7,11 +7,14 @@
 
 TriangleComponent::TriangleComponent(Game* game) :GameComponent(game)
 {
-	points_ = new DirectX::XMFLOAT4[6]
+	points_ = new DirectX::XMFLOAT4[10]
 	{
-			DirectX::XMFLOAT4(0.0f, 1.0f, -1.0f, 1.0f),DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-			DirectX::XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 0.0f),
-			DirectX::XMFLOAT4(0.0f, 1.0f, -2.0f, 1.0f),DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f)
+		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+		DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+
 	};
 }
 
@@ -40,7 +43,8 @@ void TriangleComponent::Initialize()
 
 #pragma region shaders 
 	ID3DBlob* errorVertexCode;
-	res = D3DCompileFromFile(L"../Shaders/MyShader.hlsl",
+	res = D3DCompileFromFile(
+		L"../Shaders/MyShader.hlsl", 
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -66,18 +70,18 @@ void TriangleComponent::Initialize()
 	}
 
 	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
-	 
+
 	ID3DBlob* errorPixelCode;
 	res = D3DCompileFromFile(L"../Shaders/MyShader.hlsl",
 		Shader_Macros /*macros*/,
-		nullptr /*include*/, 
-		"PSMain", 
+		nullptr /*include*/,
+		"PSMain",
 		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 
-		0, 
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
 		&pixel_shader_byte_code_,
 		&errorPixelCode);
-	
+
 	if (FAILED(res))
 	{
 		if (errorPixelCode)
@@ -140,7 +144,7 @@ void TriangleComponent::Initialize()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 32;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * 6;
+	vertexBufDesc.ByteWidth = 10 * sizeof(DirectX::XMFLOAT4);
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = points_;
@@ -149,7 +153,7 @@ void TriangleComponent::Initialize()
 
 	res = game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vertices_);
 
-	int indeces[] = { 0,1,2, 1,0,3 };
+	int indeces[] = { 0,1,2, 2,3,4 }; // TODO 
 	D3D11_BUFFER_DESC indDesc = {};
 	indDesc.Usage = D3D11_USAGE_DEFAULT;
 	indDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -181,10 +185,10 @@ void TriangleComponent::Initialize()
 void TriangleComponent::Draw(float delta_time)
 {
 
-	auto context = game->context; 
+	auto context = game->context;
 	UINT stride[] = { 32 };
 	UINT offset[] = { 0 };
-	 
+
 	context->RSSetState(rast_state_);
 
 	context->IASetInputLayout(layout_);
@@ -194,7 +198,7 @@ void TriangleComponent::Draw(float delta_time)
 	context->VSSetShader(vertex_shader_, nullptr, 0);
 	context->PSSetShader(pixel_shader_, nullptr, 0);
 
-	context->DrawIndexed(6, 0, 0); 
+	context->DrawIndexed(6, 0, 0);
 }
 
 void TriangleComponent::Update(float delta_time)
