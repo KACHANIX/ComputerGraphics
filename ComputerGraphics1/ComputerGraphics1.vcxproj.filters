@@ -63,8 +63,11 @@
     <ClCompile Include="TriangleGame.cpp">
       <Filter>Source Files\Games</Filter>
     </ClCompile>
-    <ClCompile Include="PongPanel.cpp">
+    <ClCompile Include="PongPanelComponent.cpp">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PongGame.cpp">
+      <Filter>Source Files\Games</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +97,15 @@
     </ClInclude>
     <ClInclude Include="SimpleMath.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PongPanelComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PongPanelSide.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="PongGame.h">
+      <Filter>Header Files\Games</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

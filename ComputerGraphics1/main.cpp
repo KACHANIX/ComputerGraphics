@@ -1,14 +1,16 @@
 #include "TriangleComponent.h"
 #include "Game.h"
+#include "PongGame.h"
 #include "TriangleGame.h"
 
-int main()
-{
-	LPCWSTR applicationName = L"My3DApp";
 
-	TriangleGame* tGame = new TriangleGame(L"My3DApp");
-	tGame->Run(800,800);
-	delete tGame;
+int main()
+{ 
+	TriangleGame* game = new TriangleGame(L"My3DApp");
+
+	//PongGame* game = new PongGame(L"ZDAROVA");
+	game->Run(800,800);
+	delete game;
 	return 0;
 
 }

@@ -1,7 +1,6 @@
 #include "InputDevice.h"
 #include <iostream>
 #include "Game.h"
-#include "SimpleMath.h"
 
 
 using namespace DirectX::SimpleMath;

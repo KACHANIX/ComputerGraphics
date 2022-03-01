@@ -131,7 +131,7 @@ void Game::PrepareFrame()
 	context->RSSetState(rast_state);
 
 
-	float color[] = { 1.0f, 1.0f, 0.0f, 0.0f };
+	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	context->ClearRenderTargetView(render_view, color);
 
 }
@@ -148,8 +148,8 @@ void Game::UpdateInternal()
 	*prev_time = current_time;
 	*total_time = std::chrono::duration_cast<std::chrono::seconds>(current_time - *start_time);
 
-	PrepareFrame();
 	Update(delta_time);
+	PrepareFrame();
 	Draw(delta_time);
 	PostDraw(delta_time);
 	EndFrame();
@@ -206,17 +206,26 @@ LRESULT Game::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lpa
 	case WM_KEYDOWN:
 	{
 		std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
-
-		if (static_cast<unsigned int>(wparam) == 27)
+		auto key = static_cast<unsigned int>(wparam);
+		if (key == 27)
 		{
 			PostQuitMessage(0);
 			Exit();
 		}
-		return 0;
+		input_device->AddPressedKey(static_cast<Keys>(key));
+		break;
+	}
+	case WM_KEYUP:
+	{
+		auto key = static_cast<unsigned int>(wparam);
+
+		input_device->RemovePressedKey(static_cast<Keys>(key));
+		break;
 	}
 	case WM_CLOSE:
 	{
 		Exit();
+		break;
 	}
 	default:
 	{
