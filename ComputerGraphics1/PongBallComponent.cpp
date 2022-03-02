@@ -1,83 +1,36 @@
-#include "PongPanelComponent.h"
-
+#include "PongBallComponent.h"
 #include "Game.h" 
 #include <d3dcompiler.h>
-#include <iostream>
-
+#include <iostream> 
 #include "InputDevice.h"
 
 
-PongPanelComponent::PongPanelComponent(Game* game, PongPanelSide side) :GameComponent(game)
+PongBallComponent::PongBallComponent(Game* game) :GameComponent(game)
 {
-	side_ = side;
-	points_quantity_ = 4;
-	indices_quantity_ = 6;
-	indices_ = new int[indices_quantity_] {0, 1, 2, 1, 2, 3};
-
-	switch (side_)
+	points_quantity_ = 9;
+	indices_quantity_ = 24;// 
+	indices_ = new int[indices_quantity_] {0, 1, 2, 2, 0, 3, 3, 0, 4, 4, 0, 5, 5, 0, 6, 6, 0, 7, 7, 0, 8, 8, 0, 1};
+	points_ = new DirectX::XMFLOAT4[points_quantity_ * 2]
 	{
-	case top:
-	{
-		points_ = new DirectX::XMFLOAT4[points_quantity_ * 2]
-		{
-			DirectX::XMFLOAT4(-1.0f, 1.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(1.0f, 1.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(-1.0f, 0.95f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(1.0f, 0.95f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		};
-		break;
-	}
-
-	case bottom:
-	{
-		points_ = new DirectX::XMFLOAT4[points_quantity_ * 2]
-		{
-			DirectX::XMFLOAT4(-1.0f, -1.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(1.0f, -1.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(-1.0f, -0.95f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(1.0f, -0.95f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		};
-
-		break;
-	}
-	case left:
-	{
-		points_ = new DirectX::XMFLOAT4[points_quantity_ * 2]
-		{
-			DirectX::XMFLOAT4(-1.0f, -0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(-0.95f, -0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(-1.0f, 0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(-0.95f, 0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		};
-		break;
-	}
-	case right:
-	{
-		points_ = new DirectX::XMFLOAT4[points_quantity_ * 2]
-		{
-			DirectX::XMFLOAT4(1.0f, -0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(0.95f, -0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(1.0f, 0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::XMFLOAT4(0.95f, 0.2f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-
-		};
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
-
+		DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(-0.012f, 0.029f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(0.012f, 0.029f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(0.029f, 0.012f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(0.029f, -0.012f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(0.012f, -0.029f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(-0.012f, -0.029f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(-0.029f, -0.012f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::XMFLOAT4(-0.029f, 0.012f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+	};
 }
 
 
-PongPanelComponent::~PongPanelComponent()
+PongBallComponent::~PongBallComponent()
 {
-	PongPanelComponent::DestroyResources();
+	PongBallComponent::DestroyResources();
 }
 
-void PongPanelComponent::DestroyResources()
+void PongBallComponent::DestroyResources()
 {
 	delete[] points_;
 	delete[] indices_;
@@ -90,7 +43,7 @@ void PongPanelComponent::DestroyResources()
 	if (constant_buffer_ != nullptr) constant_buffer_->Release();
 }
 
-void PongPanelComponent::Initialize()
+void PongBallComponent::Initialize()
 {
 	HRESULT res;
 
@@ -244,7 +197,7 @@ void PongPanelComponent::Initialize()
 #pragma endregion Initialize rasterization state
 }
 
-void PongPanelComponent::Draw(float delta_time)
+void PongBallComponent::Draw(float delta_time)
 {
 
 	auto context = game->context;
@@ -263,40 +216,11 @@ void PongPanelComponent::Draw(float delta_time)
 	context->DrawIndexed(indices_quantity_, 0, 0);
 }
 
-void PongPanelComponent::Update(float delta_time)
+void PongBallComponent::Update(float delta_time)
 {
-	switch (side_)
-	{
-	case left:
-	{
-		if (game->input_device->IsKeyDown(Keys::W) && const_data_.y < 0.75)
-		{
-			const_data_.y += 0.01f;
-		}
-		if (game->input_device->IsKeyDown(Keys::S)&&const_data_.y > -0.75)
-		{
-			const_data_.y -= 0.01f;
-		}
-		break;
-	}
-	case right:
-	{
-		if (game->input_device->IsKeyDown(Keys::Up) && const_data_.y < 0.75)
-		{
-			const_data_.y += 0.01f;
-		}
-		if (game->input_device->IsKeyDown(Keys::Down) && const_data_.y > -0.75)
-		{
-			const_data_.y -= 0.01f;
-		}
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
 
+	const_data_.x += x_velocity;
+	const_data_.y += y_velocity; 
 
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	game->context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
@@ -305,7 +229,18 @@ void PongPanelComponent::Update(float delta_time)
 	game->context->Unmap(constant_buffer_, 0);
 }
 
-PongPanelComponent::ConstData PongPanelComponent::GetConstData()
+void PongBallComponent::Reload()
+{}
+void PongBallComponent::Reload(float x, float y)
+{
+	const_data_.x = 0.0f;
+	const_data_.y = 0.0f;
+	x_velocity = x;
+	y_velocity = y;
+}
+ 
+
+PongBallComponent::ConstData PongBallComponent::GetConstData()
 {
 	return const_data_;
 }

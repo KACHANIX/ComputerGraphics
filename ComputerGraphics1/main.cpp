@@ -6,9 +6,9 @@
 
 int main()
 { 
-	TriangleGame* game = new TriangleGame(L"My3DApp");
+	//TriangleGame* game = new TriangleGame(L"My3DApp");
 
-	//PongGame* game = new PongGame(L"ZDAROVA");
+	PongGame* game = new PongGame(L"ZDAROVA");
 	game->Run(800,800);
 	delete game;
 	return 0;

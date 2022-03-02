@@ -205,7 +205,7 @@ LRESULT Game::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lpa
 	{
 	case WM_KEYDOWN:
 	{
-		std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
+		//std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
 		auto key = static_cast<unsigned int>(wparam);
 		if (key == 27)
 		{
