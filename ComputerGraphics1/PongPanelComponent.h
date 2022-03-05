@@ -1,9 +1,8 @@
 #pragma once 
-#include <d3d11.h>
-#include <directxmath.h> 
-
+#include <d3d11.h> 
 #include "GameComponent.h"  
 #include "PongPanelSide.h"
+#include "SimpleMath.h"
 
 class Game;
 
@@ -22,7 +21,7 @@ class PongPanelComponent : public GameComponent
 
 	ID3D11RasterizerState* rast_state_ = nullptr;
 	ID3D11Buffer* indeces_buffer = nullptr;
-	DirectX::XMFLOAT4* points_;
+	DirectX::SimpleMath::Vector4* points_;
 	PongPanelSide side_;
 	int points_quantity_;
 	int* indices_;

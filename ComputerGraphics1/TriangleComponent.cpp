@@ -7,13 +7,13 @@
 
 TriangleComponent::TriangleComponent(Game* game) :GameComponent(game)
 {
-	points_ = new DirectX::XMFLOAT4[10]
+	points_ = new DirectX::SimpleMath::Vector4[10]
 	{
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.0f, 0.0f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f),
 
 	};
 }
@@ -144,7 +144,7 @@ void TriangleComponent::Initialize()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 32;
-	vertexBufDesc.ByteWidth = 10 * sizeof(DirectX::XMFLOAT4);
+	vertexBufDesc.ByteWidth = 10 * sizeof(DirectX::SimpleMath::Vector4);
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = points_;
@@ -153,7 +153,7 @@ void TriangleComponent::Initialize()
 
 	res = game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vertices_);
 
-	int indeces[] = { 0,1,2, 2,3,4 }; // TODO 
+	int indeces[] = { 0,1,2, 2,3,4 };
 	D3D11_BUFFER_DESC indDesc = {};
 	indDesc.Usage = D3D11_USAGE_DEFAULT;
 	indDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;

@@ -151,33 +151,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BoxComponent.cpp" />
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComputerGraphics1.cpp" />
     <ClCompile Include="Delegates.cpp" />
     <ClCompile Include="DisplayWin32.cpp" />
+    <ClCompile Include="FPSCameraController.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PlaneComponent.cpp" />
     <ClCompile Include="PongBallComponent.cpp" />
     <ClCompile Include="PongGame.cpp" />
     <ClCompile Include="PongPanelComponent.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
+    <ClCompile Include="SolarGame.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
     <ClCompile Include="TriangleGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BoxComponent.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="FPSCameraController.h" />
     <ClInclude Include="Delegates.h" />
     <ClInclude Include="DisplayWin32.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="Keys.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="PlaneComponent.h" />
     <ClInclude Include="PongBallComponent.h" />
     <ClInclude Include="PongBallVelocity.h" />
     <ClInclude Include="PongGame.h" />
     <ClInclude Include="PongPanelSide.h" />
     <ClInclude Include="PongPanelComponent.h" />
     <ClInclude Include="SimpleMath.h" />
+    <ClInclude Include="SolarGame.h" />
     <ClInclude Include="TriangleComponent.h" />
     <ClInclude Include="TriangleGame.h" />
   </ItemGroup>
@@ -186,6 +197,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </Natvis>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleMath.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

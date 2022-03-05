@@ -2,7 +2,7 @@
 #include <d3d11.h>
 #include <directxmath.h>
 #include <vector>
-
+#include "SimpleMath.h"
 #include "GameComponent.h" 
 
 class Game;
@@ -22,7 +22,7 @@ class TriangleComponent : public GameComponent
 
 	ID3D11RasterizerState* rast_state_ = nullptr;
 	ID3D11Buffer* indeces_buffer = nullptr;
-	DirectX::XMFLOAT4* points_;
+	DirectX::SimpleMath::Vector4* points_;
 
 public:
 

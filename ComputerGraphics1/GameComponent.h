@@ -1,5 +1,6 @@
 #pragma once
 
+class Camera;
 class Game;
 
 class GameComponent
@@ -7,9 +8,14 @@ class GameComponent
 public:
 	virtual ~GameComponent() = default;
 	Game* game;
-
-	GameComponent(Game* inGame) {
-		game = inGame;
+	Camera* cam = nullptr;
+	GameComponent(Game* in_game) {
+		game = in_game;
+	}
+	GameComponent(Game* in_game, Camera* in_cam)
+	{
+		game = in_game;
+		cam = in_cam;
 	}
 
 	virtual void DestroyResources() = 0;

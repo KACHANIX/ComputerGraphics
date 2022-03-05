@@ -203,29 +203,67 @@ LRESULT Game::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lpa
 {
 	switch (umessage)
 	{
-	case WM_KEYDOWN:
-	{
-		//std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
-		auto key = static_cast<unsigned int>(wparam);
-		if (key == 27)
-		{
-			PostQuitMessage(0);
-			Exit();
-		}
-		input_device->AddPressedKey(static_cast<Keys>(key));
-		break;
-	}
-	case WM_KEYUP:
-	{
-		auto key = static_cast<unsigned int>(wparam);
+	//case WM_KEYDOWN:
+	//{
+	//	//std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
+	//	auto key = static_cast<unsigned int>(wparam);
+	//	if (key == 27)
+	//	{
+	//		PostQuitMessage(0);
+	//		Exit();
+	//	}
+	//	input_device->AddPressedKey(static_cast<Keys>(key));
+	//	break;
+	//}
+	//case WM_KEYUP:
+	//{
+	//	auto key = static_cast<unsigned int>(wparam);
 
-		input_device->RemovePressedKey(static_cast<Keys>(key));
-		break;
-	}
+	//	input_device->RemovePressedKey(static_cast<Keys>(key));
+	//	break;
+	//}
 	case WM_CLOSE:
 	{
 		Exit();
 		break;
+	}
+	case WM_INPUT:
+	{
+		UINT dwSize = 0;
+		GetRawInputData(reinterpret_cast<HRAWINPUT>(lparam), RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
+		LPBYTE lpb = new BYTE[dwSize];
+		if (lpb == nullptr) {
+			return 0;
+		}
+
+		if (GetRawInputData((HRAWINPUT)lparam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+			OutputDebugString(TEXT("GetRawInputData does not return correct size !\n"));
+
+		RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(lpb);
+
+		if (raw->header.dwType == RIM_TYPEKEYBOARD)
+		{
+			instance->input_device->OnKeyDown({
+				raw->data.keyboard.MakeCode,
+				raw->data.keyboard.Flags,
+				raw->data.keyboard.VKey,
+				raw->data.keyboard.Message
+				});
+		}
+		else if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			instance->input_device->OnMouseMove({
+								raw->data.mouse.usFlags,
+				raw->data.mouse.usButtonFlags,
+				static_cast<int>(raw->data.mouse.ulExtraInformation),
+				static_cast<int>(raw->data.mouse.ulRawButtons),
+				static_cast<short>(raw->data.mouse.usButtonData),
+				raw->data.mouse.lLastX,
+				raw->data.mouse.lLastY
+				});
+		}
+		delete[] lpb;
+		return DefWindowProc(hwnd, umessage, wparam, lparam);
 	}
 	default:
 	{

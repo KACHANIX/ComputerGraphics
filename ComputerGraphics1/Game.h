@@ -14,7 +14,7 @@
 #pragma comment(lib, "dxguid.lib")
 #include <d3d11_1.h> 
 #include <vector>
- 
+#include "SimpleMath.h"
 class InputDevice; 
 
 class Game
@@ -24,7 +24,7 @@ public:
 	LPCWSTR name;
 	 
 	std::vector<GameComponent*> components;
-	DirectX::XMFLOAT2 screen_resized [2];
+	DirectX::SimpleMath::Vector2 screen_resized [2];
 	DisplayWin32* display;
 	InputDevice* input_device; 
 

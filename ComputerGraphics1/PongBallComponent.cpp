@@ -10,17 +10,17 @@ PongBallComponent::PongBallComponent(Game* game) :GameComponent(game)
 	points_quantity_ = 9;
 	indices_quantity_ = 24;// 
 	indices_ = new int[indices_quantity_] {0, 1, 2, 2, 0, 3, 3, 0, 4, 4, 0, 5, 5, 0, 6, 6, 0, 7, 7, 0, 8, 8, 0, 1};
-	points_ = new DirectX::XMFLOAT4[points_quantity_ * 2]
+	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
 	{
-		DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(-0.012f, 0.029f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(0.012f, 0.029f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(0.029f, 0.012f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(0.029f, -0.012f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(0.012f, -0.029f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(-0.012f, -0.029f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(-0.029f, -0.012f, 0.5f, 1.0f),DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
-		DirectX::XMFLOAT4(-0.029f, 0.012f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.0f, 0.0f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.012f, 0.029f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.012f, 0.029f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.029f, 0.012f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.029f, -0.012f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.012f, -0.029f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.012f, -0.029f, 0.5f, 1.0f),DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.029f, -0.012f, 0.5f, 1.0f),DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.029f, 0.012f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
 	};
 }
 
@@ -150,7 +150,7 @@ void PongBallComponent::Initialize()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 32;
-	vertexBufDesc.ByteWidth = points_quantity_ * 2 * sizeof(DirectX::XMFLOAT4);
+	vertexBufDesc.ByteWidth = points_quantity_ * 2 * sizeof(DirectX::SimpleMath::Vector4);
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = points_;

@@ -1,83 +1,49 @@
-#include "PongPanelComponent.h"
+#include "BoxComponent.h"
+
 
 #include "Game.h" 
 #include <d3dcompiler.h>
-#include <iostream>
+#include <iostream> 
 
+#include "Camera.h"
 #include "InputDevice.h"
 
 
-PongPanelComponent::PongPanelComponent(Game* game, PongPanelSide side) :GameComponent(game)
+BoxComponent::BoxComponent(Game* in_game, Camera* in_cam) :GameComponent(in_game, in_cam)
 {
-	side_ = side;
-	points_quantity_ = 4;
-	indices_quantity_ = 6;
-	indices_ = new int[indices_quantity_] {0, 1, 2, 1, 2, 3};
+	points_quantity_ = 8;
+	indices_quantity_ = 36;// 
+	indices_ = new int[indices_quantity_]
+	{
+		0, 2, 1, 1, 2, 3, // bottom
+			4, 6, 5, 5, 6, 7, // top
+			0, 4, 1, 1, 4, 5,	// front
+			2, 6, 3, 3, 6, 7,	// back
+			2, 6, 0, 0, 6, 4,	// left
+			3, 7, 1, 1, 7, 5	// right
+	};
+	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
+	{
+		DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), // b l c
+		DirectX::SimpleMath::Vector4(50.0f, 1.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), // b r c
+		DirectX::SimpleMath::Vector4(0.0f, 1.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), // b l f 
+		DirectX::SimpleMath::Vector4(50.0f, 1.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), //b r f
 
-	switch (side_)
-	{
-	case top:
-	{
-		points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
-		{
-			DirectX::SimpleMath::Vector4(-1.0f, 1.0f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(-1.0f, 0.95f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(1.0f, 0.95f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-		};
-		break;
-	}
+		DirectX::SimpleMath::Vector4(0.0f, 50.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f),  // t l c
+		DirectX::SimpleMath::Vector4(50.0f, 50.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f),  // t r c 
+		DirectX::SimpleMath::Vector4(0.0f, 50.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f), // t l f
+		DirectX::SimpleMath::Vector4(50.0f, 50.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f), // t r f
 
-	case bottom:
-	{
-		points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
-		{
-			DirectX::SimpleMath::Vector4(-1.0f, -1.0f, 0.5f, 1.0f),DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(1.0f, -1.0f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(-1.0f, -0.95f, 0.5f, 1.0f),DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(1.0f, -0.95f, 0.5f, 1.0f),DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-		};
-
-		break;
-	}
-	case left:
-	{
-		points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
-		{
-			DirectX::SimpleMath::Vector4(-1.0f, -0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(-0.95f, -0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(-1.0f, 0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(-0.95f, 0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-		};
-		break;
-	}
-	case right:
-	{
-		points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
-		{
-			DirectX::SimpleMath::Vector4(1.0f, -0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(0.95f, -0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(1.0f, 0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-			DirectX::SimpleMath::Vector4(0.95f, 0.2f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.8f, 0.8f, 1.0f),
-
-		};
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
-
+	};
 }
 
 
-PongPanelComponent::~PongPanelComponent()
+BoxComponent::~BoxComponent()
 {
-	PongPanelComponent::DestroyResources();
+	BoxComponent::DestroyResources();
 }
 
-void PongPanelComponent::DestroyResources()
+void BoxComponent::DestroyResources()
 {
 	delete[] points_;
 	delete[] indices_;
@@ -88,21 +54,22 @@ void PongPanelComponent::DestroyResources()
 	if (vertex_shader_byte_code_ != nullptr) vertex_shader_byte_code_->Release();
 	if (vertices_buffer_ != nullptr) vertices_buffer_->Release();
 	if (constant_buffer_ != nullptr) constant_buffer_->Release();
+	if (old_state != nullptr) old_state->Release();
 }
 
-void PongPanelComponent::Initialize()
+void BoxComponent::Initialize()
 {
 	HRESULT res;
 
 #pragma region shaders 
 	ID3DBlob* errorVertexCode;
 	res = D3DCompileFromFile(
-		L"../Shaders/MyShader.hlsl",
+		L"../Shaders/SolarShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
 		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR,
 		0,
 		&vertex_shader_byte_code_,
 		&errorVertexCode);
@@ -117,7 +84,7 @@ void PongPanelComponent::Initialize()
 		}
 		else
 		{
-			MessageBox(game->display->hWnd, L"../Shaders/MyShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(game->display->hWnd, L"../Shaders/SolarShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 		return;
 	}
@@ -125,12 +92,12 @@ void PongPanelComponent::Initialize()
 	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 
 	ID3DBlob* errorPixelCode;
-	res = D3DCompileFromFile(L"../Shaders/MyShader.hlsl",
+	res = D3DCompileFromFile(L"../Shaders/SolarShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
 		"ps_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR,
 		0,
 		&pixel_shader_byte_code_,
 		&errorPixelCode);
@@ -145,7 +112,7 @@ void PongPanelComponent::Initialize()
 		}
 		else
 		{
-			MessageBox(game->display->hWnd, L"shader/Simple.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(game->display->hWnd, L"shader/SolarShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 	}
 
@@ -227,7 +194,7 @@ void PongPanelComponent::Initialize()
 	const_buff_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	const_buff_desc.MiscFlags = 0;
 	const_buff_desc.StructureByteStride = 0;
-	const_buff_desc.ByteWidth = sizeof(ConstData);
+	const_buff_desc.ByteWidth = sizeof(DirectX::SimpleMath::Matrix); //TODO CHECK MATRIX
 	res = game->device->CreateBuffer(&const_buff_desc, nullptr, &constant_buffer_);
 
 #pragma endregion Initialize buffers
@@ -244,13 +211,14 @@ void PongPanelComponent::Initialize()
 #pragma endregion Initialize rasterization state
 }
 
-void PongPanelComponent::Draw(float delta_time)
+void BoxComponent::Draw(float delta_time)
 {
 
 	auto context = game->context;
 	UINT stride[] = { 32 };
 	UINT offset[] = { 0 };
 
+	context->RSGetState(&old_state);
 	context->RSSetState(rast_state_);
 
 	context->IASetInputLayout(layout_);
@@ -261,51 +229,31 @@ void PongPanelComponent::Draw(float delta_time)
 	context->PSSetShader(pixel_shader_, nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
 	context->DrawIndexed(indices_quantity_, 0, 0);
+
+	context->RSSetState(old_state);
+	if (old_state != nullptr)
+	{
+		old_state->Release();
+	}
 }
 
-void PongPanelComponent::Update(float delta_time)
+void BoxComponent::Update(float delta_time)
 {
-	switch (side_)
-	{
-	case left:
-	{
-		if (game->input_device->IsKeyDown(Keys::W) && const_data_.y < 0.75)
-		{
-			const_data_.y += 0.01f;
-		}
-		if (game->input_device->IsKeyDown(Keys::S)&&const_data_.y > -0.75)
-		{
-			const_data_.y -= 0.01f;
-		}
-		break;
-	}
-	case right:
-	{
-		if (game->input_device->IsKeyDown(Keys::Up) && const_data_.y < 0.75)
-		{
-			const_data_.y += 0.01f;
-		}
-		if (game->input_device->IsKeyDown(Keys::Down) && const_data_.y > -0.75)
-		{
-			const_data_.y -= 0.01f;
-		}
-		break;
-	}
-	default:
-	{
-		break;
-	}
-	}
+	// TODO TODO TODO TODO 1:48:00
+	auto wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position) * cam->view_matrix * cam->proj_matrix;
 
 
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	game->context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	auto data = reinterpret_cast<float*>(res.pData); // only if successful
-	memcpy(data, &const_data_, sizeof(ConstData));
+	memcpy(data, &wvp, sizeof(DirectX::SimpleMath::Matrix));
 	game->context->Unmap(constant_buffer_, 0);
 }
 
-PongPanelComponent::ConstData PongPanelComponent::GetConstData()
+void BoxComponent::Reload()
+{}
+
+BoxComponent::ConstData BoxComponent::GetConstData()
 {
 	return const_data_;
 }

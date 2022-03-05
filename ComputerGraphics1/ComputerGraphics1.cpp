@@ -8,6 +8,8 @@
 #include <directxmath.h>
 #include <chrono>
 
+#include "SimpleMath.h"
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -211,11 +213,11 @@ int maina()
 		vertexBC->GetBufferSize(),
 		&layout);
 
-	DirectX::XMFLOAT4 points[8] = {
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+	DirectX::SimpleMath::Vector4 points[8] = {
+		DirectX::SimpleMath::Vector4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.5f, -0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(0.5f, -0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 1.0f),
+		DirectX::SimpleMath::Vector4(-0.5f, 0.5f, 0.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f),
 	};
 
 
@@ -225,7 +227,7 @@ int maina()
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(points);
+	vertexBufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4) * std::size(points);
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = points;
