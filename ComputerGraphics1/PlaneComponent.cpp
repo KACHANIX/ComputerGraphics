@@ -1,26 +1,42 @@
 #include "PlaneComponent.h" 
 #include "Game.h"
-PlaneComponent::PlaneComponent(Game* inGame, Camera* inCamera, int inSize) :GameComponent(inGame)
+PlaneComponent::PlaneComponent(Game* in_game, Camera* in_camera, const int in_size) :GameComponent(in_game)
 {
-	camera = inCamera;
-	Position = DirectX::SimpleMath::Vector3::Zero;
-	size = inSize;
-	count = (size * 2 + 1) * 8;
-}
+	camera_ = in_camera;
+	position = DirectX::SimpleMath::Vector3::Zero;
+	size_ = in_size;
+
+	count_ = (size_ * 2 + 1) * 8;
+	points_ = new DirectX::SimpleMath::Vector4[count_];
 
 
-PlaneComponent::PlaneComponent(Game* inGame, Camera* inCamera) :GameComponent(inGame)
-{
-	camera = inCamera;
-	Position = DirectX::SimpleMath::Vector3::Zero;
-	count = (size * 2 + 1) * 8;
+	DirectX::SimpleMath::Vector4 lines_color(1.0f, 1.0f, 1.0f, 1.0f);
+	DirectX::SimpleMath::Vector4 main_line_color(0.0f, 0.0f, 1.0f, 1.0f);
+	float step = 5.0f;
+	float s = (step * size_);
+	float x = -s;
+	int i = 0;
+	while (i < count_ / 2)
+	{
+		points_[i++] = DirectX::SimpleMath::Vector4(x, 0.0f, -s, 1.0f);
+		points_[i++] = (x != 0.0f) ? lines_color : main_line_color;
+
+		points_[i++] = DirectX::SimpleMath::Vector4(x, 0.0f, s, 1.0f);
+		points_[i++] = (x != 0.0f) ? lines_color : main_line_color;
+		x += step;
+	}
+	float z = -s;
+	while (i < count_)
+	{
+		points_[i++] = DirectX::SimpleMath::Vector4(-s, 0.0f, z, 1.0f);
+		points_[i++] = (z != 0.0f) ? lines_color : main_line_color;
+		points_[i++] = DirectX::SimpleMath::Vector4(s, 0.0f, z, 1.0f);
+		points_[i++] = (z != 0.0f) ? lines_color : main_line_color;
+		z += step;
+	}
+
 }
 
-PlaneComponent::PlaneComponent(Game* inGame) : GameComponent(inGame)
-{
-	Position = DirectX::SimpleMath::Vector3::Zero;
-	count = (size * 2 + 1) * 8;
-}
 
 PlaneComponent::~PlaneComponent()
 {
@@ -40,7 +56,7 @@ void PlaneComponent::Initialize()
 		"vs_5_0",
 		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR,
 		0,
-		&vertexShaderByteCode,
+		&vertex_shader_byte_code_,
 		&errorVertexCode);
 
 	if (FAILED(res))
@@ -57,9 +73,9 @@ void PlaneComponent::Initialize()
 		}
 	}
 	res = game->device->CreateVertexShader(
-		vertexShaderByteCode->GetBufferPointer(),
-		vertexShaderByteCode->GetBufferSize(),
-		nullptr, &vertexShader);
+		vertex_shader_byte_code_->GetBufferPointer(),
+		vertex_shader_byte_code_->GetBufferSize(),
+		nullptr, &vertex_shader_);
 
 	ID3DBlob* errorPixelCode;
 	res = D3DCompileFromFile(L"../Shaders/SolarShader.hlsl",
@@ -69,7 +85,7 @@ void PlaneComponent::Initialize()
 		"ps_5_0",
 		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR,
 		0,
-		&pixelShaderByteCode,
+		&pixel_shader_byte_code_,
 		&errorPixelCode);
 
 	if (FAILED(res))
@@ -86,9 +102,9 @@ void PlaneComponent::Initialize()
 		}
 	}
 	res = game->device->CreatePixelShader(
-		pixelShaderByteCode->GetBufferPointer(),
-		pixelShaderByteCode->GetBufferSize(),
-		nullptr, &pixelShader); 
+		pixel_shader_byte_code_->GetBufferPointer(),
+		pixel_shader_byte_code_->GetBufferSize(),
+		nullptr, &pixel_shader_);
 #pragma endregion Initialize shaders
 
 #pragma region Initialize layout
@@ -113,66 +129,26 @@ void PlaneComponent::Initialize()
 	res = game->device->CreateInputLayout(
 		inputElements,
 		2,
-		vertexShaderByteCode->GetBufferPointer(),
-		vertexShaderByteCode->GetBufferSize(),
-		&layout); 
+		vertex_shader_byte_code_->GetBufferPointer(),
+		vertex_shader_byte_code_->GetBufferSize(),
+		&layout);
 #pragma endregion Initialize layout
 
-#pragma region Initialize points value
-	points = new DirectX::SimpleMath::Vector4[count * 16];
-
-	int i = 0;
-	std::cout << count << std::endl;
-	std::cout << size << std::endl;
-	float s = (float)size;
-	float x = -s;
-	while (i < (count / 2))
-	{
-		points[i] = DirectX::SimpleMath::Vector4(x, 0.0f, -s, 1.0f);
-		i++;
-		points[i] = (x != 0.0f) ? DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f) : DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-		i++;
-
-		points[i] = DirectX::SimpleMath::Vector4(x, 0.0f, s, 1.0f);
-		i++;
-		points[i] = (x != 0.0f) ? DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f) : DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-		i++;
-
-		x = x + 1.0f;
-	}
-
-	float z = -s;
-	while (i < count)
-	{
-		points[i] = DirectX::SimpleMath::Vector4(-s, 0.0f, z, 1.0f);
-		i++;
-		points[i] = (z != 0.0f) ? DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f) : DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-		i++;
-
-		points[i] = DirectX::SimpleMath::Vector4(s, 0.0f, z, 1.0f);
-		i++;
-		points[i] = (z != 0.0f) ? DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f) : DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-		i++;
-
-		z = z + 1.0f;
-	}
-#pragma endregion Initialize points value
-
-#pragma region Initialize bufferss
+#pragma region Initialize buffers
 	D3D11_BUFFER_DESC bufDesc = {};
 	bufDesc.Usage = D3D11_USAGE_DEFAULT;
 	bufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bufDesc.CPUAccessFlags = 0;
 	bufDesc.MiscFlags = 0;
 	bufDesc.StructureByteStride = 32;
-	bufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4) * count;
+	bufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4) * count_;
 
 	D3D11_SUBRESOURCE_DATA positionsData = {};
-	positionsData.pSysMem = points;
+	positionsData.pSysMem = points_;
 	positionsData.SysMemPitch = 0;
 	positionsData.SysMemSlicePitch = 0;
 
-	res = game->device->CreateBuffer(&bufDesc, &positionsData, &vertices);
+	res = game->device->CreateBuffer(&bufDesc, &positionsData, &vertices_);
 
 	D3D11_BUFFER_DESC constBufDesc = {};
 	constBufDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -180,63 +156,63 @@ void PlaneComponent::Initialize()
 	constBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	constBufDesc.MiscFlags = 0;
 	constBufDesc.StructureByteStride = 0;
-	constBufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4) * count;
+	constBufDesc.ByteWidth = sizeof(DirectX::SimpleMath::Vector4) * count_;
 
-	res = game->device->CreateBuffer(&constBufDesc, nullptr, &constantBuffer);
+	res = game->device->CreateBuffer(&constBufDesc, nullptr, &constant_buffer_);
 #pragma endregion Initialize buffers
 
-#pragma region Initialize rasterization state
+#pragma region Initialize rasterization
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.FillMode = D3D11_FILL_SOLID; // Only lines
+	rastDesc.FillMode = D3D11_FILL_SOLID;
 
-	res = game->device->CreateRasterizerState(&rastDesc, &rastState); 
-	res = game->context->QueryInterface(IID_ID3DUserDefinedAnnotation, (void**)&annotation); 
-#pragma endregion Initialize rasterization state
+	res = game->device->CreateRasterizerState(&rastDesc, &rast_state_);
+	game->context->RSSetState(rast_state_);
+
+#pragma endregion Initialize rasterization
 }
 
 void PlaneComponent::DestroyResources()
 {
 	if (layout != nullptr) layout->Release();
-	if (pixelShader != nullptr) pixelShader->Release();
-	if (vertexShader != nullptr) vertexShader->Release();
-	if (pixelShaderByteCode != nullptr) pixelShaderByteCode->Release();
-	if (vertexShaderByteCode != nullptr) vertexShaderByteCode->Release();
-	if (vertices != nullptr) vertices->Release();
-	if (rastState != nullptr) rastState->Release();
-	if (constantBuffer != nullptr) constantBuffer->Release();
-	if (annotation != nullptr) annotation->Release();
+	if (pixel_shader_ != nullptr) pixel_shader_->Release();
+	if (vertex_shader_ != nullptr) vertex_shader_->Release();
+	if (pixel_shader_byte_code_ != nullptr) pixel_shader_byte_code_->Release();
+	if (vertex_shader_byte_code_ != nullptr) vertex_shader_byte_code_->Release();
+	if (vertices_ != nullptr) vertices_->Release();
+	if (rast_state_ != nullptr) rast_state_->Release();
+	if (constant_buffer_ != nullptr) constant_buffer_->Release();
 }
 
-void PlaneComponent::Draw(float deltaTime)
+void PlaneComponent::Draw(float delta_time)
 {
 	auto context = game->context;
 	ID3D11RasterizerState* oldState;
 	const UINT stride = 32;
 	const UINT offset = 0;
 	context->RSGetState(&oldState);
-	context->RSSetState(rastState);
+	context->RSSetState(rast_state_);
 	context->IASetInputLayout(layout);
-	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST); // Lines
-	context->IASetVertexBuffers(0, 1, &vertices, &stride, &offset);
-	context->VSSetShader(vertexShader, nullptr, 0);
-	context->PSSetShader(pixelShader, nullptr, 0);
-	context->VSSetConstantBuffers(0, 1, &constantBuffer);
+	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	context->IASetVertexBuffers(0, 1, &vertices_, &stride, &offset);
+	context->VSSetShader(vertex_shader_, nullptr, 0);
+	context->PSSetShader(pixel_shader_, nullptr, 0);
+	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
 
-	annotation->BeginEvent(L"Wireframe draw event");
-	context->Draw(count, 0);
-	annotation->EndEvent();
+	context->Draw(count_, 0);
 	context->RSSetState(oldState);
-	if (oldState != nullptr) oldState->Release();
+	if (oldState != nullptr)
+	{
+		oldState->Release();
+	}
 }
 
-void PlaneComponent::Update(float deltaTime)
+void PlaneComponent::Update(float delta_time)
 {
-	auto wvp = DirectX::SimpleMath::Matrix::CreateTranslation(Position) * camera->view_matrix * camera->proj_matrix;
-	//game->Context->UpdataSubresource(constantBuffer, 0, nullptr, &wvp, 0, 0);
+	auto wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position) * camera_->view_matrix * camera_->proj_matrix;
 	D3D11_MAPPED_SUBRESOURCE res = {};
-	game->context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	game->context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	auto dataP = reinterpret_cast<float*>(res.pData);
 	memcpy(dataP, &wvp, sizeof(DirectX::SimpleMath::Matrix));
-	game->context->Unmap(constantBuffer, 0);
+	game->context->Unmap(constant_buffer_, 0);
 }

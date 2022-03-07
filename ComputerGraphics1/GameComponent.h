@@ -1,4 +1,5 @@
 #pragma once
+#include "SimpleMath.h"
 
 class Camera;
 class Game;
@@ -18,6 +19,8 @@ public:
 		cam = in_cam;
 	}
 
+	DirectX::SimpleMath::Vector3 position;
+	GameComponent* parent = nullptr;
 	virtual void DestroyResources() = 0;
 	virtual void Draw(float delta_time) = 0;
 	virtual void Initialize() = 0;

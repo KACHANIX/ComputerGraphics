@@ -9,8 +9,14 @@
 #include "InputDevice.h"
 
 
-BoxComponent::BoxComponent(Game* in_game, Camera* in_cam) :GameComponent(in_game, in_cam)
+BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent, float in_offset) :GameComponent(in_game, in_cam)
 {
+	offset = in_offset;
+	if (in_parent != nullptr)
+	{
+		parent = in_parent;
+	}
+	position = DirectX::SimpleMath::Vector3(in_offset, 0, in_offset);
 	points_quantity_ = 8;
 	indices_quantity_ = 36;// 
 	indices_ = new int[indices_quantity_]
@@ -24,15 +30,15 @@ BoxComponent::BoxComponent(Game* in_game, Camera* in_cam) :GameComponent(in_game
 	};
 	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
 	{
-		DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), // b l c
-		DirectX::SimpleMath::Vector4(50.0f, 1.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), // b r c
-		DirectX::SimpleMath::Vector4(0.0f, 1.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), // b l f 
-		DirectX::SimpleMath::Vector4(50.0f, 1.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.0f, 1.0f), //b r f
+		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f), // b l c
+		DirectX::SimpleMath::Vector4(2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f), // b r c
+		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), // b l f 
+		DirectX::SimpleMath::Vector4(2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), //b r f
 
-		DirectX::SimpleMath::Vector4(0.0f, 50.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f),  // t l c
-		DirectX::SimpleMath::Vector4(50.0f, 50.0f, 0.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f),  // t r c 
-		DirectX::SimpleMath::Vector4(0.0f, 50.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f), // t l f
-		DirectX::SimpleMath::Vector4(50.0f, 50.0f, 50.0f, 1.0f),	DirectX::SimpleMath::Vector4(0.8f, 0.0f, 0.8f, 1.0f), // t r f
+		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),  // t l c
+		DirectX::SimpleMath::Vector4(2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),  // t r c 
+		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), // t l f
+		DirectX::SimpleMath::Vector4(2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), // t r f
 
 	};
 }
@@ -69,7 +75,7 @@ void BoxComponent::Initialize()
 		nullptr /*include*/,
 		"VSMain",
 		"vs_5_0",
-		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR,
+		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_DEBUG,
 		0,
 		&vertex_shader_byte_code_,
 		&errorVertexCode);
@@ -97,7 +103,7 @@ void BoxComponent::Initialize()
 		nullptr /*include*/,
 		"PSMain",
 		"ps_5_0",
-		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR,
+		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR | D3DCOMPILE_DEBUG,
 		0,
 		&pixel_shader_byte_code_,
 		&errorPixelCode);
@@ -240,7 +246,44 @@ void BoxComponent::Draw(float delta_time)
 void BoxComponent::Update(float delta_time)
 {
 	// TODO TODO TODO TODO 1:48:00
-	auto wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position) * cam->view_matrix * cam->proj_matrix;
+	DirectX::SimpleMath::Matrix wvp;
+	if (parent != nullptr)
+	{
+
+
+		if (parent->parent != nullptr)
+		{
+			wvp =
+				1
+
+				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
+				* (parent->parent != nullptr ? DirectX::SimpleMath::Matrix::CreateRotationY(2 * game->total_time) : DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time))
+				* (
+					1
+					* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
+					* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
+					)
+				* cam->view_matrix * cam->proj_matrix;
+		}
+		else
+		{
+			wvp =
+				1
+				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
+				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
+				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
+
+				* cam->view_matrix * cam->proj_matrix;
+		}
+
+	}
+	else
+	{
+		wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
+			* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
+			* cam->view_matrix * cam->proj_matrix;
+	}
+
 
 
 	D3D11_MAPPED_SUBRESOURCE res = {};

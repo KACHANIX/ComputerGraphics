@@ -54,8 +54,7 @@ void Game::Run(int window_width, int window_height)
 	start_time = new std::chrono::time_point<std::chrono::steady_clock>();
 	prev_time = new std::chrono::time_point<std::chrono::steady_clock>();
 	*start_time = std::chrono::steady_clock::now();
-	*prev_time = *start_time;
-	total_time = new std::chrono::duration<long long>();
+	*prev_time = *start_time; 
 
 	MSG msg = {};
 
@@ -146,7 +145,7 @@ void Game::UpdateInternal()
 	auto current_time = std::chrono::steady_clock::now();
 	float delta_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - *prev_time).count() / 1000000.0f;
 	*prev_time = current_time;
-	*total_time = std::chrono::duration_cast<std::chrono::seconds>(current_time - *start_time);
+	total_time += delta_time;
 
 	Update(delta_time);
 	PrepareFrame();
@@ -203,25 +202,25 @@ LRESULT Game::MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lpa
 {
 	switch (umessage)
 	{
-	//case WM_KEYDOWN:
-	//{
-	//	//std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
-	//	auto key = static_cast<unsigned int>(wparam);
-	//	if (key == 27)
-	//	{
-	//		PostQuitMessage(0);
-	//		Exit();
-	//	}
-	//	input_device->AddPressedKey(static_cast<Keys>(key));
-	//	break;
-	//}
-	//case WM_KEYUP:
-	//{
-	//	auto key = static_cast<unsigned int>(wparam);
+		//case WM_KEYDOWN:
+		//{
+		//	//std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
+		//	auto key = static_cast<unsigned int>(wparam);
+		//	if (key == 27)
+		//	{
+		//		PostQuitMessage(0);
+		//		Exit();
+		//	}
+		//	input_device->AddPressedKey(static_cast<Keys>(key));
+		//	break;
+		//}
+		//case WM_KEYUP:
+		//{
+		//	auto key = static_cast<unsigned int>(wparam);
 
-	//	input_device->RemovePressedKey(static_cast<Keys>(key));
-	//	break;
-	//}
+		//	input_device->RemovePressedKey(static_cast<Keys>(key));
+		//	break;
+		//}
 	case WM_CLOSE:
 	{
 		Exit();

@@ -42,10 +42,9 @@ class BoxComponent : public GameComponent
 #pragma pack(pop)
 	ConstData const_data_ = { 0,0 };
 
-public:
-	DirectX::SimpleMath::Vector3 position;
-
-	BoxComponent(Game* in_game, Camera* in_cam);
+public: 
+	float offset;
+	BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent = nullptr, float offset = 0);
 	~BoxComponent();
 
 	virtual void Initialize() override;

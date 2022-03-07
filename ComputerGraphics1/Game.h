@@ -47,7 +47,7 @@ public:
 
 	std::chrono::time_point<std::chrono::steady_clock>* start_time = nullptr;
 	std::chrono::time_point<std::chrono::steady_clock>* prev_time = nullptr;
-	std::chrono::seconds* total_time = nullptr;
+	float total_time;
 
 	bool is_exit_requested = false;
 	bool is_active = false;
