@@ -257,7 +257,7 @@ void BoxComponent::Update(float delta_time)
 				1
 
 				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
-				* (parent->parent != nullptr ? DirectX::SimpleMath::Matrix::CreateRotationY(2 * game->total_time) : DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time))
+				* DirectX::SimpleMath::Matrix::CreateRotationY(2 * game->total_time)
 				* (
 					1
 					* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
