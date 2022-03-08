@@ -1,15 +1,17 @@
-#include "BoxComponent.h"
+#include "SphereComponent.h"
 
 
 #include "Game.h" 
 #include <d3dcompiler.h>
 #include <iostream> 
-
 #include "Camera.h"
 #include "InputDevice.h"
 
+#define M_PI 3.14159265358979323846
+#define param M_PI/180
 
-BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent, float in_offset) :GameComponent(in_game, in_cam)
+
+SphereComponent::SphereComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent, float in_offset) :GameComponent(in_game, in_cam)
 {
 	offset = in_offset;
 	if (in_parent != nullptr)
@@ -17,39 +19,61 @@ BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_pare
 		parent = in_parent;
 	}
 	position = DirectX::SimpleMath::Vector3(in_offset, 0, in_offset);
-	points_quantity_ = 8;
-	indices_quantity_ = 36;// 
-	indices_ = new int[indices_quantity_]
-	{
-		0, 2, 1, 2, 3, 1,
-			1, 3, 5, 3, 7, 5,
-			2, 6, 3, 3, 6, 7,
-			4, 5, 7, 4, 7, 6,
-			0, 4, 2, 2, 4, 6,
-			0, 1, 4, 1, 5, 4
-	};
-	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
-	{
-		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
-		
-		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
 
-		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(2.5f, 2.5f, 2.5f, 1.0f),		DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
-	};
+	float circle_degrees = 360.0f;
+
+	float radius = 10.0f;
+
+	int horizontal_dots = 360;
+	float horizontal_step = circle_degrees / horizontal_dots;
+
+	int vertical_dots = 360;
+	float vertical_step = circle_degrees / (vertical_dots );
+
+	points_quantity_ = horizontal_dots * vertical_dots;
+	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 4];
+	 
+
+	float current_horizontal = 0;
+	float current_vertical;
+	int i = 0;
+	while (current_horizontal != circle_degrees)
+	{
+		current_vertical = vertical_step;
+		points_[i++] = DirectX::SimpleMath::Vector4(0.0f, radius, 0.0f, 0.0f);
+		points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
+		while (current_vertical != (circle_degrees) / 2)
+		{
+			points_[i++] = DirectX::SimpleMath::Vector4(
+				radius * sin(current_vertical * param) * cos(current_horizontal * param),
+				radius * cos(current_vertical * param),
+				radius * sin(current_vertical * param) * sin(current_horizontal * param),
+				1.0f);
+			points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
+			points_[i++] = DirectX::SimpleMath::Vector4(
+				radius * sin(current_vertical * param) * cos(current_horizontal * param),
+				radius * cos(current_vertical * param) ,
+				radius * sin(current_vertical * param) * sin(current_horizontal * param),
+				1.0f);
+			points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
+
+			current_vertical += vertical_step;
+
+		}
+		points_[i++] = DirectX::SimpleMath::Vector4(0.0f, -radius, 0.0f, 0.0f);
+		points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
+		current_horizontal += horizontal_step;
+	}
+
 }
 
 
-BoxComponent::~BoxComponent()
+SphereComponent::~SphereComponent()
 {
-	BoxComponent::DestroyResources();
+	SphereComponent::DestroyResources();
 }
 
-void BoxComponent::DestroyResources()
+void SphereComponent::DestroyResources()
 {
 	delete[] points_;
 	delete[] indices_;
@@ -63,7 +87,7 @@ void BoxComponent::DestroyResources()
 	if (old_state != nullptr) old_state->Release();
 }
 
-void BoxComponent::Initialize()
+void SphereComponent::Initialize()
 {
 	HRESULT res;
 
@@ -209,7 +233,7 @@ void BoxComponent::Initialize()
 	UINT strides[] = { 32 };
 	UINT offsets[] = { 0 };
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_FRONT;
+	rastDesc.CullMode = D3D11_CULL_NONE;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rast_state_);
@@ -217,7 +241,7 @@ void BoxComponent::Initialize()
 #pragma endregion Initialize rasterization state
 }
 
-void BoxComponent::Draw(float delta_time)
+void SphereComponent::Draw(float delta_time)
 {
 
 	auto context = game->context;
@@ -228,13 +252,13 @@ void BoxComponent::Draw(float delta_time)
 	context->RSSetState(rast_state_);
 
 	context->IASetInputLayout(layout_);
-	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 	context->IASetIndexBuffer(indeces_buffer, DXGI_FORMAT_R32_UINT, 0);
 	context->IASetVertexBuffers(0, 1, &vertices_buffer_, stride, offset);
 	context->VSSetShader(vertex_shader_, nullptr, 0);
 	context->PSSetShader(pixel_shader_, nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
-	context->DrawIndexed(indices_quantity_, 0, 0);
+	context->Draw(points_quantity_ * 2, 0);
 
 	context->RSSetState(old_state);
 	if (old_state != nullptr)
@@ -243,11 +267,10 @@ void BoxComponent::Draw(float delta_time)
 	}
 }
 
-void BoxComponent::Update(float delta_time)
+void SphereComponent::Update(float delta_time)
 {
-	// TODO TODO TODO TODO 1:48:00
 	DirectX::SimpleMath::Matrix wvp;
-	if (parent != nullptr)
+	/*if (parent != nullptr)
 	{
 		if (parent->parent != nullptr)
 		{
@@ -273,9 +296,10 @@ void BoxComponent::Update(float delta_time)
 		wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
 			* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 			* cam->view_matrix * cam->proj_matrix;
-	}
+	}*/
 
-
+	wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
+		* cam->view_matrix * cam->proj_matrix;
 
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	game->context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
@@ -284,10 +308,10 @@ void BoxComponent::Update(float delta_time)
 	game->context->Unmap(constant_buffer_, 0);
 }
 
-void BoxComponent::Reload()
+void SphereComponent::Reload()
 {}
 
-BoxComponent::ConstData BoxComponent::GetConstData()
+SphereComponent::ConstData SphereComponent::GetConstData()
 {
 	return const_data_;
 }

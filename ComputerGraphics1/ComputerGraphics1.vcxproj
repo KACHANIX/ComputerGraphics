@@ -167,6 +167,7 @@
     <ClCompile Include="PongPanelComponent.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SolarGame.cpp" />
+    <ClCompile Include="SphereComponent.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
     <ClCompile Include="TriangleGame.cpp" />
   </ItemGroup>
@@ -189,6 +190,7 @@
     <ClInclude Include="PongPanelComponent.h" />
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="SolarGame.h" />
+    <ClInclude Include="SphereComponent.h" />
     <ClInclude Include="TriangleComponent.h" />
     <ClInclude Include="TriangleGame.h" />
   </ItemGroup>

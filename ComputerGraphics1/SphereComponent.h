@@ -1,14 +1,12 @@
-#pragma once 
-
-#include <d3d11.h> 
-#include "GameComponent.h"  
-#include "SimpleMath.h"
-
+#pragma once
+#include "GameComponent.h" 
+#include <d3d11.h>
 
 class Game;
 
-class BoxComponent : public GameComponent
+class SphereComponent : public GameComponent
 {
+
 	ID3D11InputLayout* layout_ = nullptr;
 
 	ID3D11PixelShader* pixel_shader_ = nullptr;
@@ -41,8 +39,8 @@ class BoxComponent : public GameComponent
 
 public:
 	float offset;
-	BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent = nullptr, float offset = 0);
-	~BoxComponent();
+	SphereComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent = nullptr, float offset = 0);
+	~SphereComponent();
 
 	virtual void Initialize() override;
 	virtual void DestroyResources() override;
@@ -51,3 +49,4 @@ public:
 	virtual void Reload() override;
 	virtual ConstData GetConstData();
 };
+
