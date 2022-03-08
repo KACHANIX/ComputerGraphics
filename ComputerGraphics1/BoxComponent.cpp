@@ -21,25 +21,24 @@ BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_pare
 	indices_quantity_ = 36;// 
 	indices_ = new int[indices_quantity_]
 	{
-		0, 2, 1, 1, 2, 3, // bottom
-			4, 6, 5, 5, 6, 7, // top
-			0, 4, 1, 1, 4, 5,	// front
-			2, 6, 3, 3, 6, 7,	// back
-			2, 6, 0, 0, 6, 4,	// left
-			3, 7, 1, 1, 7, 5	// right
+		0, 2, 1, 2, 3, 1,
+			1, 3, 5, 3, 7, 5,
+			2, 6, 3, 3, 6, 7,
+			4, 5, 7, 4, 7, 6,
+			0, 4, 2, 2, 4, 6,
+			0, 1, 4, 1, 5, 4
 	};
 	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
 	{
-		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f), // b l c
-		DirectX::SimpleMath::Vector4(2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f), // b r c
-		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), // b l f 
-		DirectX::SimpleMath::Vector4(2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), //b r f
+		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
 
-		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),  // t l c
-		DirectX::SimpleMath::Vector4(2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),  // t r c 
-		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), // t l f
-		DirectX::SimpleMath::Vector4(2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f), // t r f
-
+		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(2.5f, 2.5f, 2.5f, 1.0f),		DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
 	};
 }
 
@@ -209,7 +208,7 @@ void BoxComponent::Initialize()
 	UINT strides[] = { 32 };
 	UINT offsets[] = { 0 };
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
+	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rast_state_);
@@ -249,30 +248,21 @@ void BoxComponent::Update(float delta_time)
 	DirectX::SimpleMath::Matrix wvp;
 	if (parent != nullptr)
 	{
-
-
 		if (parent->parent != nullptr)
 		{
 			wvp =
-				1
-
-				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
+				DirectX::SimpleMath::Matrix::CreateTranslation(position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(2 * game->total_time)
-				* (
-					1
-					* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
-					* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
-					)
+				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
+				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 				* cam->view_matrix * cam->proj_matrix;
 		}
 		else
 		{
 			wvp =
-				1
-				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
+				DirectX::SimpleMath::Matrix::CreateTranslation(position)
 				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
-
 				* cam->view_matrix * cam->proj_matrix;
 		}
 
