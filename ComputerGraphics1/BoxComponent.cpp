@@ -30,7 +30,7 @@ BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_pare
 	};
 	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2]
 	{
-		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f),
 		DirectX::SimpleMath::Vector4(2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
 		
 		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
@@ -39,7 +39,7 @@ BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_pare
 		DirectX::SimpleMath::Vector4(2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
 
 		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
-		DirectX::SimpleMath::Vector4(2.5f, 2.5f, 2.5f, 1.0f),		DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+		DirectX::SimpleMath::Vector4(2.5f, 2.5f, 2.5f, 1.0f),		DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f),
 	};
 }
 

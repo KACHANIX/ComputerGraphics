@@ -10,7 +10,7 @@ PlaneComponent::PlaneComponent(Game* in_game, Camera* in_camera, const int in_si
 	points_ = new DirectX::SimpleMath::Vector4[count_];
 
 
-	DirectX::SimpleMath::Vector4 lines_color(1.0f, 1.0f, 1.0f, 1.0f);
+	DirectX::SimpleMath::Vector4 lines_color(0.8f, 0.8f, 0.8f, 1.0f);
 	DirectX::SimpleMath::Vector4 main_line_color(0.0f, 0.0f, 1.0f, 1.0f);
 	float step = 5.0f;
 	float s = (step * size_);

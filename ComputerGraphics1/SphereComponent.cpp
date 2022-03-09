@@ -13,26 +13,30 @@
 
 SphereComponent::SphereComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent, float in_offset) :GameComponent(in_game, in_cam)
 {
+	float radius = 5.0f;
+
+
 	offset = in_offset;
 	if (in_parent != nullptr)
 	{
 		parent = in_parent;
+		if (in_parent->parent != nullptr)
+		{
+			radius /= 2;
+		}
 	}
 	position = DirectX::SimpleMath::Vector3(in_offset, 0, in_offset);
 
 	float circle_degrees = 360.0f;
-
-	float radius = 10.0f;
-
+	
 	int horizontal_dots = 360;
 	float horizontal_step = circle_degrees / horizontal_dots;
 
 	int vertical_dots = 360;
-	float vertical_step = circle_degrees / (vertical_dots );
+	float vertical_step = circle_degrees / (vertical_dots * 2);
 
-	points_quantity_ = horizontal_dots * vertical_dots;
+	points_quantity_ = horizontal_dots * vertical_dots * 2;
 	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 4];
-	 
 
 	float current_horizontal = 0;
 	float current_vertical;
@@ -41,7 +45,9 @@ SphereComponent::SphereComponent(Game* in_game, Camera* in_cam, GameComponent* i
 	{
 		current_vertical = vertical_step;
 		points_[i++] = DirectX::SimpleMath::Vector4(0.0f, radius, 0.0f, 0.0f);
-		points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
+		points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (current_horizontal/(circle_degrees)),
+			1.0f - (current_horizontal / (circle_degrees)),
+			0.0f + (current_horizontal / (circle_degrees)), 1.0f);
 		while (current_vertical != (circle_degrees) / 2)
 		{
 			points_[i++] = DirectX::SimpleMath::Vector4(
@@ -49,13 +55,18 @@ SphereComponent::SphereComponent(Game* in_game, Camera* in_cam, GameComponent* i
 				radius * cos(current_vertical * param),
 				radius * sin(current_vertical * param) * sin(current_horizontal * param),
 				1.0f);
-			points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
-			points_[i++] = DirectX::SimpleMath::Vector4(
-				radius * sin(current_vertical * param) * cos(current_horizontal * param),
-				radius * cos(current_vertical * param) ,
-				radius * sin(current_vertical * param) * sin(current_horizontal * param),
-				1.0f);
-			points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
+			points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (current_horizontal / (circle_degrees)), 
+				1.0f - (current_horizontal / (circle_degrees)),
+				0.0f + (current_horizontal / (circle_degrees)), 1.0f);
+
+
+
+			//points_[i++] = DirectX::SimpleMath::Vector4(
+			//	radius * sin(current_vertical * param) * cos(current_horizontal * param),
+			//	radius * cos(current_vertical * param),
+			//	radius * sin(current_vertical * param) * sin(current_horizontal * param),
+			//	1.0f);
+			//points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
 
 			current_vertical += vertical_step;
 
@@ -252,13 +263,13 @@ void SphereComponent::Draw(float delta_time)
 	context->RSSetState(rast_state_);
 
 	context->IASetInputLayout(layout_);
-	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	context->IASetIndexBuffer(indeces_buffer, DXGI_FORMAT_R32_UINT, 0);
 	context->IASetVertexBuffers(0, 1, &vertices_buffer_, stride, offset);
 	context->VSSetShader(vertex_shader_, nullptr, 0);
 	context->PSSetShader(pixel_shader_, nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
-	context->Draw(points_quantity_ * 2, 0);
+	context->Draw(points_quantity_ * 4, 0);
 
 	context->RSSetState(old_state);
 	if (old_state != nullptr)
@@ -270,7 +281,7 @@ void SphereComponent::Draw(float delta_time)
 void SphereComponent::Update(float delta_time)
 {
 	DirectX::SimpleMath::Matrix wvp;
-	/*if (parent != nullptr)
+	if (parent != nullptr)
 	{
 		if (parent->parent != nullptr)
 		{
@@ -296,10 +307,10 @@ void SphereComponent::Update(float delta_time)
 		wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
 			* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 			* cam->view_matrix * cam->proj_matrix;
-	}*/
+	}
 
-	wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
-		* cam->view_matrix * cam->proj_matrix;
+	/*wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
+		* cam->view_matrix * cam->proj_matrix;*/
 
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	game->context->Map(constant_buffer_, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
