@@ -32,7 +32,7 @@ BoxComponent::BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_pare
 	{
 		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 1.0f, 0.0f, 0.0f),
 		DirectX::SimpleMath::Vector4(2.5f, -2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
-		
+
 		DirectX::SimpleMath::Vector4(-2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
 		DirectX::SimpleMath::Vector4(2.5f, 2.5f, -2.5f, 1.0f),	DirectX::SimpleMath::Vector4(1.0f, 0.0f, 0.0f, 0.0f),
 		DirectX::SimpleMath::Vector4(-2.5f, -2.5f, 2.5f, 1.0f),	DirectX::SimpleMath::Vector4(0.0f, 1.0f, 0.0f, 0.0f),
@@ -245,23 +245,23 @@ void BoxComponent::Draw(float delta_time)
 
 void BoxComponent::Update(float delta_time)
 {
-	// TODO TODO TODO TODO 1:48:00
 	DirectX::SimpleMath::Matrix wvp;
 	if (parent != nullptr)
 	{
 		if (parent->parent != nullptr)
 		{
-			wvp =
-				DirectX::SimpleMath::Matrix::CreateTranslation(position)
+			wvp = 1
+				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(2 * game->total_time)
 				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
+				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->parent->position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 				* cam->view_matrix * cam->proj_matrix;
 		}
 		else
 		{
-			wvp =
-				DirectX::SimpleMath::Matrix::CreateTranslation(position)
+			wvp = 1
+				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
 				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 				* cam->view_matrix * cam->proj_matrix;
@@ -270,8 +270,9 @@ void BoxComponent::Update(float delta_time)
 	}
 	else
 	{
-		wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
+		wvp = 1
 			* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
+			* DirectX::SimpleMath::Matrix::CreateTranslation(position)
 			* cam->view_matrix * cam->proj_matrix;
 	}
 

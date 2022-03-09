@@ -40,7 +40,7 @@ void Camera::UpdateProjectionMatrix()
 {
 
 	proj_matrix = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(
-		(float)M_PI * 0.35f,
+		(float)M_PI * 0.35f, 
 		(float)(game_->display->ClientWidth) / (float)game_->display->ClientHeight,
 		0.1f,
 		10000.0f);

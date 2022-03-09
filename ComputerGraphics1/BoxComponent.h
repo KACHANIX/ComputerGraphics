@@ -41,7 +41,7 @@ class BoxComponent : public GameComponent
 
 public:
 	float offset;
-	BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent = nullptr, float offset = 0);
+	BoxComponent(Game* in_game, Camera* in_cam, GameComponent* in_parent = nullptr, float offset = 5);
 	~BoxComponent();
 
 	virtual void Initialize() override;

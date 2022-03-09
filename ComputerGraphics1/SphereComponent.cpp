@@ -260,7 +260,7 @@ void SphereComponent::Draw(float delta_time)
 	context->VSSetShader(vertex_shader_, nullptr, 0);
 	context->PSSetShader(pixel_shader_, nullptr, 0);
 	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
-	context->Draw(points_quantity_ * 4, 0);
+	context->Draw(points_quantity_ * 2, 0);
 
 	context->RSSetState(old_state);
 	if (old_state != nullptr)
@@ -276,27 +276,28 @@ void SphereComponent::Update(float delta_time)
 	{
 		if (parent->parent != nullptr)
 		{
-			wvp =
-				DirectX::SimpleMath::Matrix::CreateTranslation(position)
+			wvp = 1
+				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(2 * game->total_time)
 				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
+				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->parent->position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 				* cam->view_matrix * cam->proj_matrix;
 		}
 		else
 		{
-			wvp =
-				DirectX::SimpleMath::Matrix::CreateTranslation(position)
+			wvp = 1
+				* DirectX::SimpleMath::Matrix::CreateTranslation(position)
 				* DirectX::SimpleMath::Matrix::CreateTranslation(parent->position)
 				* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
 				* cam->view_matrix * cam->proj_matrix;
 		}
-
 	}
 	else
 	{
-		wvp = DirectX::SimpleMath::Matrix::CreateTranslation(position)
+		wvp = 1
 			* DirectX::SimpleMath::Matrix::CreateRotationY(game->total_time)
+			* DirectX::SimpleMath::Matrix::CreateTranslation(position)
 			* cam->view_matrix * cam->proj_matrix;
 	}
 
