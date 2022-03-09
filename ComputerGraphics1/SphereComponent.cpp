@@ -29,14 +29,14 @@ SphereComponent::SphereComponent(Game* in_game, Camera* in_cam, GameComponent* i
 
 	float circle_degrees = 360.0f;
 	
-	int horizontal_dots = 360;
+	int horizontal_dots = 360 * 1;
 	float horizontal_step = circle_degrees / horizontal_dots;
 
-	int vertical_dots = 360;
+	int vertical_dots = 180 * 1;
 	float vertical_step = circle_degrees / (vertical_dots * 2);
 
 	points_quantity_ = horizontal_dots * vertical_dots * 2;
-	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 4];
+	points_ = new DirectX::SimpleMath::Vector4[points_quantity_ * 2];
 
 	float current_horizontal = 0;
 	float current_vertical;
@@ -58,16 +58,7 @@ SphereComponent::SphereComponent(Game* in_game, Camera* in_cam, GameComponent* i
 			points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (current_horizontal / (circle_degrees)), 
 				1.0f - (current_horizontal / (circle_degrees)),
 				0.0f + (current_horizontal / (circle_degrees)), 1.0f);
-
-
-
-			//points_[i++] = DirectX::SimpleMath::Vector4(
-			//	radius * sin(current_vertical * param) * cos(current_horizontal * param),
-			//	radius * cos(current_vertical * param),
-			//	radius * sin(current_vertical * param) * sin(current_horizontal * param),
-			//	1.0f);
-			//points_[i++] = DirectX::SimpleMath::Vector4(1.0f - (0.000003f * i), 1.0f - (0.000003f * i), 0.0f + (0.000003f * i), 1.0f);
-
+			
 			current_vertical += vertical_step;
 
 		}
