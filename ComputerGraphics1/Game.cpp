@@ -109,6 +109,24 @@ void Game::CreateBackBuffer()
 	HRESULT result = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&back_buffer);
 	result = device->CreateRenderTargetView(back_buffer, nullptr, &render_view);
 
+
+	D3D11_TEXTURE2D_DESC depthTexDesc = {};
+	depthTexDesc.ArraySize = 1;
+	depthTexDesc.MipLevels = 1;
+	depthTexDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	depthTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+	depthTexDesc.CPUAccessFlags = 0;
+	depthTexDesc.MiscFlags = 0;
+	depthTexDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthTexDesc.Width = display->ClientWidth;
+	depthTexDesc.Height = display->ClientHeight;
+	depthTexDesc.SampleDesc = { 1, 0 };
+	 device->CreateTexture2D(&depthTexDesc, nullptr, &depth_buffer); 
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStenDesc = {};
+	depthStenDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStenDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStenDesc.Flags = 0;
+	device->CreateDepthStencilView(depth_buffer, &depthStenDesc, &depth_view);
 }
 
 void Game::PrepareFrame()
@@ -133,6 +151,7 @@ void Game::PrepareFrame()
 	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	context->ClearRenderTargetView(render_view, color);
 
+	context->ClearDepthStencilView(depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 void Game::EndFrame()
