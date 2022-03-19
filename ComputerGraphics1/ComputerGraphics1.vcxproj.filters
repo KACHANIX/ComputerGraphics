@@ -96,6 +96,9 @@
     <ClCompile Include="SphereComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="TinyObjModelComponent.cpp">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameComponent.h">
@@ -159,6 +162,12 @@
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="SphereComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TinyObjModelComponent.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_obj_loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
