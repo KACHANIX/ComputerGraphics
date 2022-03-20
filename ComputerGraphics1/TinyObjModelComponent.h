@@ -35,6 +35,7 @@ class TinyObjModelComponent : public GameComponent
 
 	int elem_count_;
 
+
 public:
 	DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3::Zero;
 	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity;

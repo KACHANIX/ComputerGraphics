@@ -15,21 +15,22 @@
 #include <d3d11_1.h> 
 #include <vector>
 #include "SimpleMath.h"
-class InputDevice; 
+#include "TextureLoader.h"
+class InputDevice;
 
 class Game
 {
 public:
 	static Game* instance;
 	LPCWSTR name;
-	 
+
 	std::vector<GameComponent*> components;
-	DirectX::SimpleMath::Vector2 screen_resized [2];
+	DirectX::SimpleMath::Vector2 screen_resized[2];
 	DisplayWin32* display;
-	InputDevice* input_device; 
+	InputDevice* input_device;
 
 	ID3D11Device* device = nullptr;
-	IDXGISwapChain* swap_chain = nullptr; 
+	IDXGISwapChain* swap_chain = nullptr;
 	ID3D11DeviceContext* context = nullptr;
 
 	ID3D11Texture2D* back_buffer = nullptr;
@@ -52,6 +53,8 @@ public:
 	bool is_exit_requested = false;
 	bool is_active = false;
 
+	TextureLoader* texture_loader = nullptr;
+
 	Game(LPCWSTR window_name);
 	virtual ~Game();
 
@@ -59,11 +62,11 @@ public:
 	void RestoreTargets();
 	void Run(int window_width, int window_height);
 	virtual LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
-	
-private:
-	DXGI_SWAP_CHAIN_DESC swap_desc_ = {}; 
 
-	void CreateBackBuffer(); 
+private:
+	DXGI_SWAP_CHAIN_DESC swap_desc_ = {};
+
+	void CreateBackBuffer();
 
 protected:
 	virtual void Initialize();
@@ -75,7 +78,7 @@ protected:
 	void PrepareResources();
 	void UpdateInternal();
 	void PrepareFrame();
-	void EndFrame(); 
+	void EndFrame();
 };
 
 static LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);

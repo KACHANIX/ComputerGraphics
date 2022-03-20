@@ -11,6 +11,7 @@ Game::Game(LPCWSTR window_name)
 {
 	name = window_name;
 	instance = this;
+	texture_loader = new TextureLoader(instance);
 }
 void Game::Initialize()
 {
@@ -54,7 +55,7 @@ void Game::Run(int window_width, int window_height)
 	start_time = new std::chrono::time_point<std::chrono::steady_clock>();
 	prev_time = new std::chrono::time_point<std::chrono::steady_clock>();
 	*start_time = std::chrono::steady_clock::now();
-	*prev_time = *start_time; 
+	*prev_time = *start_time;
 
 	MSG msg = {};
 
@@ -121,7 +122,7 @@ void Game::CreateBackBuffer()
 	depthTexDesc.Width = display->ClientWidth;
 	depthTexDesc.Height = display->ClientHeight;
 	depthTexDesc.SampleDesc = { 1, 0 };
-	 device->CreateTexture2D(&depthTexDesc, nullptr, &depth_buffer); 
+	device->CreateTexture2D(&depthTexDesc, nullptr, &depth_buffer);
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStenDesc = {};
 	depthStenDesc.Format = DXGI_FORMAT_D32_FLOAT;
 	depthStenDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -175,7 +176,7 @@ void Game::UpdateInternal()
 
 void Game::DestroyResources()
 {
-
+	delete texture_loader;
 }
 void Game::PrepareResources()
 {

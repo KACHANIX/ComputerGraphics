@@ -5,8 +5,6 @@
 #include <d3dcompiler.h>
 #include <iostream>
 
-ConstData data = {};
-
 struct TinyShape
 {
 	int StartIndex;
@@ -14,6 +12,21 @@ struct TinyShape
 	int MaterialInd;
 };
 
+struct TinyMaterial
+{
+	const char* TexName;
+	ID3D11Texture2D* DiffuseTexture;
+	ID3D11ShaderResourceView* DiffSRV;
+};
+
+
+#pragma pack(push, 4)
+struct ConstDataBuf
+{
+	DirectX::SimpleMath::Matrix wvp;
+};
+#pragma pack(pop)
+ConstDataBuf data = {};
 
 TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name) :GameComponent(in_game)
 {
@@ -105,6 +118,7 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* 
 	auto out_materials = new TinyMaterial[materials.size()]; // todo: define tinymaterials
 	for (UINT i = 0; i < materials.size(); i++)
 	{
+
 		out_materials[i].TexName = materials[i].diffuse_texname.c_str();
 		std::string diff_name = materials[i].diffuse_texname;
 		if (diff_name.empty())
@@ -113,7 +127,7 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* 
 		}
 		auto texFile = directory + "/" + diff_name;
 		std::wstring stemp = std::wstring(texFile.begin(), texFile.end());
-		//textureloader->Loadtexturefromfile (stemp.cstr, outmaterials[i].DiffuseTexture, outMaterials[i].diffSRV, false)          //Todo
+		game->texture_loader->LoadTextureFromFile(stemp.c_str(), out_materials[i].DiffuseTexture, out_materials[i].DiffSRV, false);
 	}
 }
 
@@ -338,3 +352,9 @@ void TinyObjModelComponent::Draw(float delta_time)
 	old_state->Release();
 
 }
+
+void TinyObjModelComponent::DestroyResources()
+{
+
+}
+

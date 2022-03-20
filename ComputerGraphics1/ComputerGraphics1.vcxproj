@@ -160,6 +160,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
+    <ClCompile Include="KatamariGame.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PlaneComponent.cpp" />
     <ClCompile Include="PongBallComponent.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SolarGame.cpp" />
     <ClCompile Include="SphereComponent.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TinyObjModelComponent.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
     <ClCompile Include="TriangleGame.cpp" />
@@ -181,6 +183,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="InputDevice.h" />
+    <ClInclude Include="KatamariGame.h" />
     <ClInclude Include="Keys.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlaneComponent.h" />
@@ -192,6 +195,7 @@
     <ClInclude Include="SimpleMath.h" />
     <ClInclude Include="SolarGame.h" />
     <ClInclude Include="SphereComponent.h" />
+    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TinyObjModelComponent.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="TriangleComponent.h" />
