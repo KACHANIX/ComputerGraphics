@@ -85,10 +85,10 @@ void FPSCameraController::OnMouseMove(const InputDevice::MouseMoveEventArgs& arg
 
 	if (args.WheelDelta > 0)
 	{
-		velocity_magnitude += 1;
+		velocity_magnitude += 10;
 	}
 	else if (args.WheelDelta < 0)
 	{
-		velocity_magnitude -= 1;
+		velocity_magnitude -= 10;
 	}
 }

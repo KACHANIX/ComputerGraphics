@@ -34,8 +34,10 @@ TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, c
 	model_name_ = in_file_name;
 }
 
-void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* v_buf, ID3D11Buffer* n_buf,
-	ID3D11Buffer* t_buf, ID3D11Buffer* str_buf, TinyMaterial* in_materials, TinyShape* in_shapes, int elem_count)
+void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
+	ID3D11Buffer*& n_buf, ID3D11Buffer*& t_buf,
+	ID3D11Buffer*& str_buf, TinyMaterial*& out_materials,
+	TinyShape*& out_shapes, int& elem_count)
 {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -50,8 +52,9 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* 
 	const size_t last_slash_idx = fName.rfind('/');
 	if (std::string::npos != last_slash_idx)
 	{
-		directory = fName.substr(0, last_slash_idx);
+		directory = fName.substr(0, last_slash_idx) + "/";
 	}
+	//bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, model_name, directory.c_str());
 	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, model_name, directory.c_str());
 
 	if (!warn.empty()) {
@@ -92,9 +95,8 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* 
 
 	game->device->CreateBuffer(&buf_desc, &res_data, &t_buf);
 
-	int shapesCount = shapes.size();
-	TinyShape* out_shapes = new TinyShape[shapes.size()];
-
+	elem_count = shapes.size();
+	out_shapes = new TinyShape[shapes.size()];
 	std::vector<tinyobj::index_t> indexes;
 	int ind = 0;
 	for (auto shape : shapes)
@@ -115,7 +117,7 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* 
 	res_data.pSysMem = &indexes[0];
 	game->device->CreateBuffer(&buf_desc, &res_data, &str_buf);
 
-	auto out_materials = new TinyMaterial[materials.size()]; // todo: define tinymaterials
+	out_materials = new TinyMaterial[materials.size()]; // todo: define tinymaterials
 	for (UINT i = 0; i < materials.size(); i++)
 	{
 
@@ -125,7 +127,7 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer* 
 		{
 			diff_name = "DefaultDiffuseMap.jpg";
 		}
-		auto texFile = directory + "/" + diff_name;
+		auto texFile = directory + /*"/" +*/ diff_name;
 		std::wstring stemp = std::wstring(texFile.begin(), texFile.end());
 		game->texture_loader->LoadTextureFromFile(stemp.c_str(), out_materials[i].DiffuseTexture, out_materials[i].DiffSRV, false);
 	}
@@ -198,6 +200,31 @@ void TinyObjModelComponent::Initialize()
 	str_buf_ = nullptr;
 	materials_ = nullptr;
 	shapes_ = nullptr;
+	/*D3D11_INPUT_ELEMENT_DESC inputElements[] = {
+	D3D11_INPUT_ELEMENT_DESC {
+		"POSITION",
+		0,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		0,
+		0,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0},
+	D3D11_INPUT_ELEMENT_DESC {
+		"COLOR",
+		0,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		0,
+		D3D11_APPEND_ALIGNED_ELEMENT,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0}
+	};
+
+	res = game->device->CreateInputLayout(
+		inputElements,
+		2,
+		vertex_shader_byte_code_->GetBufferPointer(),
+		vertex_shader_byte_code_->GetBufferSize(),
+		&layout_);*/
 
 	LoadTinyModel(model_name_, v_buf_, n_buf_, t_buf_, str_buf_, materials_, shapes_, elem_count_); //todo 
 
@@ -205,7 +232,7 @@ void TinyObjModelComponent::Initialize()
 	v_buf_->GetDesc(&desc_buf);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
-	srv_desc.ViewDimension = D3D10_1_SRV_DIMENSION_BUFFER;
+	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 	srv_desc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	srv_desc.Buffer.FirstElement = 0;
 	srv_desc.Buffer.NumElements = desc_buf.ByteWidth / sizeof(DirectX::SimpleMath::Vector3);
@@ -349,7 +376,10 @@ void TinyObjModelComponent::Draw(float delta_time)
 	}
 
 	context->RSSetState(old_state);
-	old_state->Release();
+	if (old_state != nullptr)
+	{
+		old_state->Release();
+	}
 
 }
 

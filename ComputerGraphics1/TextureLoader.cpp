@@ -14,7 +14,7 @@ TextureLoader::TextureLoader(Game* inGame)
 
 TextureLoader::~TextureLoader()
 {
-	if (factory_ != nullptr) factory_->Release();
+	//if (factory_ != nullptr) factory_->Release();
 }
 
 HRESULT TextureLoader::LoadTextureFromFile(LPCWSTR fileName, ID3D11Texture2D*& texture, ID3D11ShaderResourceView*& textureView, bool generateMips, bool useSrgb, UINT frameIndex)

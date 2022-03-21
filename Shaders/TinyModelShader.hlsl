@@ -13,7 +13,7 @@ cbuffer ConstBuf : register(b0)
 struct PS_IN
 {
 	float4 pos : SV_POSITION;
- 	float4 col : COLOR;
+ 	float4 normal : NORMAL;
  	float2 tex : TEXCOORD;
 };
 
@@ -22,7 +22,7 @@ struct Inds
 	uint pInd;
 	uint nInd;
 	uint tInd;
-}
+};
 
 Texture2D DiffuseMap : register(t0);
 SamplerState Sampler : register(s0);
@@ -40,19 +40,19 @@ struct VS_IN
 };
 
 
-PS_IN VSMain(unit index : SV_VertexID)
+PS_IN VSMain(uint index : SV_VertexID)
 {
 	PS_IN output = (PS_IN)0;
 	
 	Inds inds = Indexes[index /* + ConstData.indexOffset*/];
 
 	float3 pos = Positions[inds.pInd];
-	float3 normal = Positions[inds.nInd];
-	float2 tex = Positions[inds.tInd];
+	float3 normal = Normals[inds.nInd];
+	float2 tex = TexCoords[inds.tInd];
 
 	output.pos = mul(float4(pos, 1.0f), ConstData.WorldViewProj);
 	output.normal = float4(normal, 0.0f);
-	output.col = tex;
+	output.tex = tex;
 	
 	return output;
 }

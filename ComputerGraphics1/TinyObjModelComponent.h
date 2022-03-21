@@ -7,6 +7,8 @@ struct TinyShape;
 
 class TinyObjModelComponent : public GameComponent
 {
+
+	ID3D11InputLayout* layout_ = nullptr;
 	ID3D11PixelShader* pixel_shader_;
 	ID3D11VertexShader* vertex_shader_;
 	ID3DBlob* pixel_shader_byte_code_;
@@ -46,9 +48,9 @@ public:
 	virtual void Update(float delta_time) override;
 	virtual void Draw(float delta_time) override;
 	virtual void DestroyResources() override;
-
-	void LoadTinyModel(const char* model_name, ID3D11Buffer* v_buf,
-		ID3D11Buffer* n_buf, ID3D11Buffer* t_buf,
-		ID3D11Buffer* str_buf, TinyMaterial* materials,
-		TinyShape* shapes, int elem_count);
+	virtual void Reload() override {}
+	void LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
+		ID3D11Buffer*& n_buf, ID3D11Buffer*& t_buf,
+		ID3D11Buffer*& str_buf, TinyMaterial*& materials,
+		TinyShape*& shapes, int& elem_count);
 };

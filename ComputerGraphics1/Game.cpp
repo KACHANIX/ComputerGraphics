@@ -11,7 +11,7 @@ Game::Game(LPCWSTR window_name)
 {
 	name = window_name;
 	instance = this;
-	texture_loader = new TextureLoader(instance);
+	texture_loader = new TextureLoader(this);
 }
 void Game::Initialize()
 {
