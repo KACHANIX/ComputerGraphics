@@ -37,12 +37,14 @@ class TinyObjModelComponent : public GameComponent
 
 	int elem_count_;
 
+	bool is_main_;
 
 public:
-	DirectX::SimpleMath::Vector3 position = DirectX::SimpleMath::Vector3::Zero;
+
 	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity;
 
-	TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name);
+	TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name, bool in_is_main = false);
+	~TinyObjModelComponent();
 
 	virtual void Initialize() override;
 	virtual void Update(float delta_time) override;

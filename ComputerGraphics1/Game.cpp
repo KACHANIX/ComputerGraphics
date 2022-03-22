@@ -176,7 +176,7 @@ void Game::UpdateInternal()
 
 void Game::DestroyResources()
 {
-	delete texture_loader;
+	//if (texture_loader != nullptr) delete texture_loader;
 }
 void Game::PrepareResources()
 {

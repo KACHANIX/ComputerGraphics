@@ -5,6 +5,9 @@
 #include <d3dcompiler.h>
 #include <iostream>
 
+#include "InputDevice.h"
+#include "Keys.h"
+
 struct TinyShape
 {
 	int StartIndex;
@@ -19,7 +22,6 @@ struct TinyMaterial
 	ID3D11ShaderResourceView* DiffSRV;
 };
 
-
 #pragma pack(push, 4)
 struct ConstDataBuf
 {
@@ -28,10 +30,13 @@ struct ConstDataBuf
 #pragma pack(pop)
 ConstDataBuf data = {};
 
-TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name) :GameComponent(in_game)
+TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name, bool in_is_main) :GameComponent(in_game)
 {
+	//transform *= 1000.0f;
 	camera_ = in_camera;
 	model_name_ = in_file_name;
+	is_main_ = in_is_main;
+	position = DirectX::SimpleMath::Vector3::Zero;
 }
 
 void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
@@ -335,7 +340,19 @@ void TinyObjModelComponent::Initialize()
 
 void TinyObjModelComponent::Update(float delta_time)
 {
-	auto world = transform * DirectX::SimpleMath::Matrix::CreateTranslation(position);
+	if (is_main_)
+	{
+		if (game->input_device->IsKeyDown(Keys::W))
+		{
+			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.02f);
+		}
+		if (game->input_device->IsKeyDown(Keys::S))
+		{
+			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, -0.02f);
+		}
+	}
+	//position += DirectX::SimpleMath::Vector3(0.05f, 0.0f, 0.0f);
+	auto world = DirectX::SimpleMath::Matrix::CreateRotationY(3.1415) * transform * DirectX::SimpleMath::Matrix::CreateTranslation(position);
 	auto proj = world * camera_->GetCameraMatrix();
 	data.wvp = proj;//todo;
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
@@ -383,8 +400,33 @@ void TinyObjModelComponent::Draw(float delta_time)
 
 }
 
+TinyObjModelComponent::~TinyObjModelComponent()
+{
+	TinyObjModelComponent::DestroyResources();
+}
+
 void TinyObjModelComponent::DestroyResources()
 {
-
+	delete[] materials_;
+	delete[] shapes_;
+	if (layout_ != nullptr) layout_->Release();
+	if (pixel_shader_ != nullptr) pixel_shader_->Release();
+	if (vertex_shader_ != nullptr) vertex_shader_->Release();
+	if (pixel_shader_byte_code_ != nullptr) pixel_shader_byte_code_->Release();
+	if (vertex_shader_byte_code_ != nullptr) vertex_shader_byte_code_->Release();
+	if (constant_buffer_ != nullptr) constant_buffer_->Release();
+	if (sampler_ != nullptr) sampler_->Release();
+	if (rast_state_ != nullptr) rast_state_->Release();
+	if (blend_state_ != nullptr) blend_state_->Release();
+	if (index_buffer_ != nullptr) index_buffer_->Release();
+	if (v_buf_ != nullptr) v_buf_->Release();
+	if (n_buf_ != nullptr) n_buf_->Release();
+	if (t_buf_ != nullptr) t_buf_->Release();
+	if (str_buf_ != nullptr) str_buf_->Release();
+	if (v_SRV_ != nullptr) v_SRV_->Release();
+	if (n_SRV_ != nullptr) n_SRV_->Release();
+	if (t_SRV_ != nullptr) t_SRV_->Release();
+	if (str_SRV_ != nullptr) str_SRV_->Release();
+	if (constant_buffer_ != nullptr) constant_buffer_->Release();
 }
 

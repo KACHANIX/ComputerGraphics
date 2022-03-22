@@ -171,6 +171,7 @@
     <ClCompile Include="SphereComponent.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TinyObjModelComponent.cpp" />
+    <ClCompile Include="TPCameraController.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
     <ClCompile Include="TriangleGame.cpp" />
   </ItemGroup>
@@ -198,6 +199,7 @@
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="TinyObjModelComponent.h" />
     <ClInclude Include="tiny_obj_loader.h" />
+    <ClInclude Include="TPCameraController.h" />
     <ClInclude Include="TriangleComponent.h" />
     <ClInclude Include="TriangleGame.h" />
   </ItemGroup>

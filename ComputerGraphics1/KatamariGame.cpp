@@ -3,16 +3,17 @@
 #include "FPSCameraController.h"
 #include "PlaneComponent.h" 
 #include "TinyObjModelComponent.h"
+#include "TPCameraController.h"
 
 void KatamariGame::Initialize()
 {
 
 	cam = new Camera(this);
-	cam_controller = new FPSCameraController(this, cam); 
+	char* a = (char*)"../Objs/Scooter.obj";
+	GameComponent* t_obj = new TinyObjModelComponent(this, cam, a);
+	cam_controller = new TPCameraController(this, cam, t_obj);;
 
 	PlaneComponent* plane = new PlaneComponent(this, cam, 50);
-	char* a = (char*)"../Objs/Scooter.obj";
-	TinyObjModelComponent* t_obj = new TinyObjModelComponent(this, cam, a);
 	components.push_back(plane);
 	components.push_back(t_obj);
 }
