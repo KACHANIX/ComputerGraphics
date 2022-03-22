@@ -59,7 +59,7 @@ void TPCameraController::Update(float delta_time)
 
 	//camera_position = camera_position + vel_dir * velocity_magnitude * delta_time;
 	//camera->view_matrix = DirectX::SimpleMath::Matrix::CreateLookAt(camera_position, camera_position + rotation_matrix.Forward(), rotation_matrix.Up());
-	DirectX::SimpleMath::Vector3 offset(0.0f, 2.0f, -5.0f);
+	DirectX::SimpleMath::Vector3 offset(-10.0f, 2.0f, 0.0f);
 
 	camera_position = parent->position + offset;
 

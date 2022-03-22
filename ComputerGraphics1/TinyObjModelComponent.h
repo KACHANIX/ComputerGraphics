@@ -41,8 +41,7 @@ class TinyObjModelComponent : public GameComponent
 
 public:
 
-	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity;
-
+	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity; 
 	TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name, bool in_is_main = false);
 	~TinyObjModelComponent();
 

@@ -9,8 +9,8 @@ void KatamariGame::Initialize()
 {
 
 	cam = new Camera(this);
-	char* a = (char*)"../Objs/Scooter.obj";
-	GameComponent* t_obj = new TinyObjModelComponent(this, cam, a);
+	char* a = (char*)"../Objs/basketball.obj";
+	GameComponent* t_obj = new TinyObjModelComponent(this, cam, a ,true);
 	cam_controller = new TPCameraController(this, cam, t_obj);;
 
 	PlaneComponent* plane = new PlaneComponent(this, cam, 50);

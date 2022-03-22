@@ -32,7 +32,8 @@ ConstDataBuf data = {};
 
 TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name, bool in_is_main) :GameComponent(in_game)
 {
-	//transform *= 1000.0f;
+	//transform *= DirectX::SimpleMath::Matrix::CreateScale(0.005f);
+
 	camera_ = in_camera;
 	model_name_ = in_file_name;
 	is_main_ = in_is_main;
@@ -340,20 +341,36 @@ void TinyObjModelComponent::Initialize()
 
 void TinyObjModelComponent::Update(float delta_time)
 {
+	const float s= 0.05f;
 	if (is_main_)
 	{
 		if (game->input_device->IsKeyDown(Keys::W))
 		{
-			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.02f);
+			transform *= transform.CreateRotationZ(-s);
+			position += DirectX::SimpleMath::Vector3(s, 0.0f, 0.0f);
 		}
 		if (game->input_device->IsKeyDown(Keys::S))
 		{
-			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, -0.02f);
+			transform *= transform.CreateRotationZ(s);
+			position += DirectX::SimpleMath::Vector3(-s, 0.0f, 0.0f);
+		}
+		if (game->input_device->IsKeyDown(Keys::D))
+		{
+			transform *= transform.CreateRotationX(s);
+			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, s);
+		}
+		if (game->input_device->IsKeyDown(Keys::A))
+		{
+			transform *= transform.CreateRotationX(-s);
+			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, -s);
 		}
 	}
-	//position += DirectX::SimpleMath::Vector3(0.05f, 0.0f, 0.0f);
-	auto world = DirectX::SimpleMath::Matrix::CreateRotationY(3.1415) * transform * DirectX::SimpleMath::Matrix::CreateTranslation(position);
-	auto proj = world * camera_->GetCameraMatrix();
+	auto zzz = 1 
+		* DirectX::SimpleMath::Matrix::CreateScale(0.01f)
+		* transform
+		* DirectX::SimpleMath::Matrix::CreateTranslation(position)
+		;
+	auto proj = zzz * camera_->GetCameraMatrix();
 	data.wvp = proj;//todo;
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
 }
