@@ -36,13 +36,18 @@ class TinyObjModelComponent : public GameComponent
 	const char* model_name_;
 
 	int elem_count_;
+	float scale_;
 
 	bool is_main_;
-
 public:
+	float radius;
 
+	bool is_possessed;
 	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity; 
-	TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name, bool in_is_main = false);
+	DirectX::SimpleMath::Matrix parent_start_transform;
+	DirectX::SimpleMath::Vector3 parent_start_position;
+	TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
+		float scale, float x_pos = 0, float z_pos = 0, bool in_is_main = false);
 	~TinyObjModelComponent();
 
 	virtual void Initialize() override;
@@ -53,5 +58,5 @@ public:
 	void LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
 		ID3D11Buffer*& n_buf, ID3D11Buffer*& t_buf,
 		ID3D11Buffer*& str_buf, TinyMaterial*& materials,
-		TinyShape*& shapes, int& elem_count);
+		TinyShape*& shapes, int& elem_count, float& radius);
 };

@@ -11,6 +11,8 @@ int main()
 	//TriangleGame* game = new TriangleGame(L"My3DApp");
 	//PongGame* game = new PongGame(L"ZDAROVA");
 	//SolarGame* game = new SolarGame(L"ZDAROVA");
+	Game* asd = new Game(L"ZD");
+	KatamariGame* ddd = (KatamariGame*)asd;
 	KatamariGame* game = new KatamariGame(L"ZDAROVA");
 	game->Run(1500	,1000);
 	delete game;

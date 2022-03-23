@@ -1,5 +1,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "TinyObjModelComponent.h" 
+
+#include <algorithm>
+
 #include "Game.h"
 #include "tiny_obj_loader.h"
 #include <d3dcompiler.h>
@@ -30,20 +33,22 @@ struct ConstDataBuf
 #pragma pack(pop)
 ConstDataBuf data = {};
 
-TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name, bool in_is_main) :GameComponent(in_game)
+TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
+	float scale, float x_pos, float z_pos, bool in_is_main) :GameComponent(in_game)
 {
-	//transform *= DirectX::SimpleMath::Matrix::CreateScale(0.005f);
+	scale_ = scale;
+	transform *= DirectX::SimpleMath::Matrix::CreateScale(scale_);
 
 	camera_ = in_camera;
 	model_name_ = in_file_name;
 	is_main_ = in_is_main;
-	position = DirectX::SimpleMath::Vector3::Zero;
+	position = DirectX::SimpleMath::Vector3(x_pos, 0, z_pos);
 }
 
 void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
 	ID3D11Buffer*& n_buf, ID3D11Buffer*& t_buf,
 	ID3D11Buffer*& str_buf, TinyMaterial*& out_materials,
-	TinyShape*& out_shapes, int& elem_count)
+	TinyShape*& out_shapes, int& elem_count, float& radius)
 {
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -84,6 +89,11 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*&
 	buf_desc.StructureByteStride = 0;
 	buf_desc.ByteWidth = sizeof(float) * attrib.vertices.size();
 
+	auto max = *std::max_element(std::begin(attrib.vertices), std::end(attrib.vertices));
+	auto min = *std::min_element(std::begin(attrib.vertices), std::end(attrib.vertices));
+
+
+	radius = max - min;
 	D3D11_SUBRESOURCE_DATA res_data = {};
 	res_data.pSysMem = &attrib.vertices[0];
 	res_data.SysMemPitch = 0;
@@ -232,8 +242,10 @@ void TinyObjModelComponent::Initialize()
 		vertex_shader_byte_code_->GetBufferSize(),
 		&layout_);*/
 
-	LoadTinyModel(model_name_, v_buf_, n_buf_, t_buf_, str_buf_, materials_, shapes_, elem_count_); //todo 
+	LoadTinyModel(model_name_, v_buf_, n_buf_, t_buf_, str_buf_, materials_, shapes_, elem_count_, radius);
 
+	radius *= scale_ * 0.5;
+	std::cout << model_name_ << " radius:     " << radius << std::endl;
 	D3D11_BUFFER_DESC desc_buf = {};
 	v_buf_->GetDesc(&desc_buf);
 
@@ -336,12 +348,14 @@ void TinyObjModelComponent::Initialize()
 
 	res = game->device->CreateBuffer(&indDesc, &indData, &index_buffer_);
 
+
 	delete[] indexes;
 }
 
 void TinyObjModelComponent::Update(float delta_time)
 {
-	const float s= 0.05f;
+	DirectX::SimpleMath::Matrix zzz;
+	const float s = 0.05f;
 	if (is_main_)
 	{
 		if (game->input_device->IsKeyDown(Keys::W))
@@ -364,13 +378,58 @@ void TinyObjModelComponent::Update(float delta_time)
 			transform *= transform.CreateRotationX(-s);
 			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, -s);
 		}
+
+		for (int i = 2; i < game->components.size(); i++)
+		{
+			TinyObjModelComponent* child = (TinyObjModelComponent*)game->components[i];
+			if (!child->is_possessed)
+			{
+				if ((child->position - position).Length() <= (child->radius + radius))
+				{
+					child->is_possessed = true;
+					child->parent_start_transform = transform;
+					child->parent_start_position = child->position - position;
+					child->parent = this;
+					radius += child->radius;
+				}
+			}
+		}
+		zzz = 1
+			* transform
+			* DirectX::SimpleMath::Matrix::CreateTranslation(position);
 	}
-	auto zzz = 1 
-		* DirectX::SimpleMath::Matrix::CreateScale(0.01f)
-		* transform
-		* DirectX::SimpleMath::Matrix::CreateTranslation(position)
-		;
+	else if (is_possessed)
+	{
+		TinyObjModelComponent* par = (TinyObjModelComponent*)parent;
+
+		auto ls =
+			(parent_start_transform - par->transform);
+		//ls = DirectX::SimpleMath::Matrix::CreateRotationX(1.2) * DirectX::SimpleMath::Matrix::CreateRotationZ(1.2);
+
+		ls._44 = 1.0f;
+
+		std::cout << std::endl << ls._11 << " " << ls._12 << " " << ls._13 << " " << ls._14 << " " << std::endl
+			<< ls._21 << " " << ls._22 << " " << ls._23 << " " << ls._24 << " " << std::endl
+			<< ls._31 << " " << ls._32 << " " << ls._33 << " " << ls._34 << " " << std::endl
+			<< ls._41 << " " << ls._42 << " " << ls._43 << " " << ls._44 << " " << std::endl;
+		zzz = 1
+			* transform
+			* DirectX::SimpleMath::Matrix::CreateTranslation(parent_start_position)
+			* DirectX::SimpleMath::Matrix::CreateRotationX(game->total_time)
+			* DirectX::SimpleMath::Matrix::CreateTranslation(par->position)
+			;
+	}
+	else
+	{
+		zzz = 1
+			* transform
+			* DirectX::SimpleMath::Matrix::CreateTranslation(position);
+	}
+
+
 	auto proj = zzz * camera_->GetCameraMatrix();
+
+
 	data.wvp = proj;//todo;
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
 }
