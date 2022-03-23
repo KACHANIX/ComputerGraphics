@@ -356,26 +356,32 @@ void TinyObjModelComponent::Update(float delta_time)
 {
 	DirectX::SimpleMath::Matrix zzz;
 	const float s = 0.05f;
+	//x_rot = 0;
+	//z_rot = 0;
 	if (is_main_)
 	{
 		if (game->input_device->IsKeyDown(Keys::W))
 		{
 			transform *= transform.CreateRotationZ(-s);
+			z_rot += -s;
 			position += DirectX::SimpleMath::Vector3(s, 0.0f, 0.0f);
 		}
 		if (game->input_device->IsKeyDown(Keys::S))
 		{
 			transform *= transform.CreateRotationZ(s);
+			z_rot += s;
 			position += DirectX::SimpleMath::Vector3(-s, 0.0f, 0.0f);
 		}
 		if (game->input_device->IsKeyDown(Keys::D))
 		{
 			transform *= transform.CreateRotationX(s);
+			x_rot += s;
 			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, s);
 		}
 		if (game->input_device->IsKeyDown(Keys::A))
 		{
 			transform *= transform.CreateRotationX(-s);
+			x_rot += -s;
 			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, -s);
 		}
 
@@ -390,6 +396,8 @@ void TinyObjModelComponent::Update(float delta_time)
 					child->parent_start_transform = transform;
 					child->parent_start_position = child->position - position;
 					child->parent = this;
+					child->start_x_rot = x_rot;
+					child->start_z_rot = z_rot;
 					radius += child->radius;
 				}
 			}
@@ -405,17 +413,18 @@ void TinyObjModelComponent::Update(float delta_time)
 		auto ls =
 			(parent_start_transform - par->transform);
 		//ls = DirectX::SimpleMath::Matrix::CreateRotationX(1.2) * DirectX::SimpleMath::Matrix::CreateRotationZ(1.2);
+		//auto s = ls.Decompose();
+		//ls._44 = 1.0f;
 
-		ls._44 = 1.0f;
+		auto x = par->z_rot - start_z_rot;
+		auto z = par->z_rot - start_z_rot;
 
-		std::cout << std::endl << ls._11 << " " << ls._12 << " " << ls._13 << " " << ls._14 << " " << std::endl
-			<< ls._21 << " " << ls._22 << " " << ls._23 << " " << ls._24 << " " << std::endl
-			<< ls._31 << " " << ls._32 << " " << ls._33 << " " << ls._34 << " " << std::endl
-			<< ls._41 << " " << ls._42 << " " << ls._43 << " " << ls._44 << " " << std::endl;
+		DirectX::SimpleMath::Matrix sss = DirectX::SimpleMath::Matrix::CreateTranslation(parent_start_position);
 		zzz = 1
 			* transform
-			* DirectX::SimpleMath::Matrix::CreateTranslation(parent_start_position)
-			* DirectX::SimpleMath::Matrix::CreateRotationX(game->total_time)
+			* DirectX::SimpleMath::Matrix::CreateTranslation((parent_start_position))
+			* DirectX::SimpleMath::Matrix::CreateRotationZ(par->z_rot - start_z_rot)
+			* DirectX::SimpleMath::Matrix::CreateRotationX((par->x_rot - start_x_rot))
 			* DirectX::SimpleMath::Matrix::CreateTranslation(par->position)
 			;
 	}
