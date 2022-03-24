@@ -354,89 +354,72 @@ void TinyObjModelComponent::Initialize()
 
 void TinyObjModelComponent::Update(float delta_time)
 {
-	DirectX::SimpleMath::Matrix zzz;
 	const float s = 0.05f;
-	//x_rot = 0;
-	//z_rot = 0;
 	if (is_main_)
 	{
 		if (game->input_device->IsKeyDown(Keys::W))
 		{
 			transform *= transform.CreateRotationZ(-s);
-			z_rot += -s;
 			position += DirectX::SimpleMath::Vector3(s, 0.0f, 0.0f);
 		}
 		if (game->input_device->IsKeyDown(Keys::S))
 		{
 			transform *= transform.CreateRotationZ(s);
-			z_rot += s;
 			position += DirectX::SimpleMath::Vector3(-s, 0.0f, 0.0f);
 		}
 		if (game->input_device->IsKeyDown(Keys::D))
 		{
 			transform *= transform.CreateRotationX(s);
-			x_rot += s;
 			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, s);
 		}
 		if (game->input_device->IsKeyDown(Keys::A))
 		{
 			transform *= transform.CreateRotationX(-s);
-			x_rot += -s;
 			position += DirectX::SimpleMath::Vector3(0.0f, 0.0f, -s);
 		}
 
+		final_matrix = 1
+			* transform
+			* DirectX::SimpleMath::Matrix::CreateTranslation(position);
 		for (int i = 2; i < game->components.size(); i++)
 		{
 			TinyObjModelComponent* child = (TinyObjModelComponent*)game->components[i];
-			if (!child->is_possessed)
+
+			if (!child->is_possessed &&
+				(child->position - position).Length() <= (child->radius + radius) &&
+				child->radius < radius)
 			{
-				if ((child->position - position).Length() <= (child->radius + radius))
-				{
-					child->is_possessed = true;
-					child->parent_start_transform = transform;
-					child->parent_start_position = child->position - position;
-					child->parent = this;
-					child->start_x_rot = x_rot;
-					child->start_z_rot = z_rot;
-					radius += child->radius;
-				}
+				child->is_possessed = true;
+				child->parent = this;
+				radius += child->radius;
+
+				child->parent_fixation = 1
+					* transform.Invert()
+					* child->final_matrix
+					;
+				child->parent_start_position = child->position - position;
 			}
 		}
-		zzz = 1
-			* transform
-			* DirectX::SimpleMath::Matrix::CreateTranslation(position);
 	}
 	else if (is_possessed)
 	{
 		TinyObjModelComponent* par = (TinyObjModelComponent*)parent;
 
-		auto ls =
-			(parent_start_transform - par->transform);
-		//ls = DirectX::SimpleMath::Matrix::CreateRotationX(1.2) * DirectX::SimpleMath::Matrix::CreateRotationZ(1.2);
-		//auto s = ls.Decompose();
-		//ls._44 = 1.0f;
-
-		auto x = par->z_rot - start_z_rot;
-		auto z = par->z_rot - start_z_rot;
-
-		DirectX::SimpleMath::Matrix sss = DirectX::SimpleMath::Matrix::CreateTranslation(parent_start_position);
-		zzz = 1
-			* transform
-			* DirectX::SimpleMath::Matrix::CreateTranslation((parent_start_position))
-			* DirectX::SimpleMath::Matrix::CreateRotationZ(par->z_rot - start_z_rot)
-			* DirectX::SimpleMath::Matrix::CreateRotationX((par->x_rot - start_x_rot))
-			* DirectX::SimpleMath::Matrix::CreateTranslation(par->position)
+		final_matrix = 1
+			* DirectX::SimpleMath::Matrix::CreateTranslation(parent_start_position * (1 / scale_))
+			* parent_fixation
+			* par->final_matrix
 			;
 	}
 	else
 	{
-		zzz = 1
+		final_matrix = 1
 			* transform
 			* DirectX::SimpleMath::Matrix::CreateTranslation(position);
 	}
 
 
-	auto proj = zzz * camera_->GetCameraMatrix();
+	auto proj = final_matrix * camera_->GetCameraMatrix();
 
 
 	data.wvp = proj;//todo;

@@ -43,13 +43,10 @@ public:
 	float radius;
 
 	bool is_possessed;
-	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity; 
-	DirectX::SimpleMath::Matrix parent_start_transform;
+	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity;
+	DirectX::SimpleMath::Matrix final_matrix = DirectX::SimpleMath::Matrix::Identity;
+	DirectX::SimpleMath::Matrix parent_fixation;
 	DirectX::SimpleMath::Vector3 parent_start_position;
-	float x_rot;
-	float z_rot;
-	float start_x_rot;
-	float start_z_rot;
 
 	TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
 		float scale, float x_pos = 0, float z_pos = 0, bool in_is_main = false);
