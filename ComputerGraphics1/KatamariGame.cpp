@@ -24,6 +24,14 @@ void KatamariGame::Initialize()
 	GameComponent* t_obj_4 = new TinyObjModelComponent(this, cam, (char*)"../Objs/basketball.obj",
 		0.015f, 10, 20);
 
+	GameComponent* t_obj_5 = new TinyObjModelComponent(this, cam, (char*)"../Objs/Wheel.obj",
+		0.01f, -20, 20);
+
+	GameComponent* t_obj_6 = new TinyObjModelComponent(this, cam, (char*)"../Objs/Wheel.obj",
+		0.03f, 20, 20);
+
+	GameComponent* t_obj_7 = new TinyObjModelComponent(this, cam, (char*)"../Objs/scooter.obj",
+		2.3f, -5, -10);
 	cam_controller = new TPCameraController(this, cam, t_obj);;
 
 	PlaneComponent* plane = new PlaneComponent(this, cam, 50);
@@ -33,6 +41,9 @@ void KatamariGame::Initialize()
 	components.push_back(t_obj_2);
 	components.push_back(t_obj_3);
 	components.push_back(t_obj_4);
+	components.push_back(t_obj_5);
+	components.push_back(t_obj_6);
+	components.push_back(t_obj_7);
 }
 
 void KatamariGame::Update(float delta_time)

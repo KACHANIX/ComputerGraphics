@@ -245,6 +245,7 @@ void TinyObjModelComponent::Initialize()
 	LoadTinyModel(model_name_, v_buf_, n_buf_, t_buf_, str_buf_, materials_, shapes_, elem_count_, radius);
 
 	radius *= scale_ * 0.5;
+	start_radius = radius;
 	std::cout << model_name_ << " radius:     " << radius << std::endl;
 	D3D11_BUFFER_DESC desc_buf = {};
 	v_buf_->GetDesc(&desc_buf);
@@ -385,9 +386,9 @@ void TinyObjModelComponent::Update(float delta_time)
 		{
 			TinyObjModelComponent* child = (TinyObjModelComponent*)game->components[i];
 
-			if (!child->is_possessed &&
-				(child->position - position).Length() <= (child->radius + radius) &&
-				child->radius < radius)
+			if (!child->is_possessed
+				&& (child->position - position).Length() <= (child->radius + start_radius)
+				&& child->radius < radius)
 			{
 				child->is_possessed = true;
 				child->parent = this;
@@ -421,8 +422,7 @@ void TinyObjModelComponent::Update(float delta_time)
 
 	auto proj = final_matrix * camera_->GetCameraMatrix();
 
-
-	data.wvp = proj;//todo;
+	data.wvp = proj;
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
 }
 

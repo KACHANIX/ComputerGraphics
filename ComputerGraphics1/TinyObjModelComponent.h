@@ -41,6 +41,7 @@ class TinyObjModelComponent : public GameComponent
 	bool is_main_;
 public:
 	float radius;
+	float start_radius;
 
 	bool is_possessed;
 	DirectX::SimpleMath::Matrix transform = DirectX::SimpleMath::Matrix::Identity;
