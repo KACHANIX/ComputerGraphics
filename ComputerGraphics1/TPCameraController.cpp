@@ -62,7 +62,7 @@ void TPCameraController::Update(float delta_time)
 
 
 	//DirectX::SimpleMath::Vector3 offset(-10.0f, 2.0f, 0.0f);
-	DirectX::SimpleMath::Vector3 offset(-0.0f, 10.0f, 0.0f);
+	DirectX::SimpleMath::Vector3 offset(-10.0f,  10.0f, 0.0f);
 
 	camera_position = parent->position + offset;
 

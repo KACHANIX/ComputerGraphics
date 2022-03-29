@@ -1,5 +1,5 @@
-//#define TINYOBJLOADER_IMPLEMENTATION
-#include "TinyObjModelComponent.h" 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "TinyObjLightModelComponent.h"
 
 #include <algorithm>
 
@@ -7,20 +7,11 @@
 #include "tiny_obj_loader.h"
 #include <d3dcompiler.h>
 #include <iostream>
-
 #include "InputDevice.h"
 #include "Keys.h"
 
-
-#pragma pack(push, 4)
-struct ConstDataBuf
-{
-	DirectX::SimpleMath::Matrix wvp;
-};
-#pragma pack(pop)
-ConstDataBuf data = {};
-
-TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
+ 
+TinyObjLightModelComponent::TinyObjLightModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
 	float scale, float x_pos, float z_pos, bool in_is_main) :TinyObjComponent(in_game)
 {
 	scale_ = scale;
@@ -32,7 +23,7 @@ TinyObjModelComponent::TinyObjModelComponent(Game* in_game, Camera* in_camera, c
 	position = DirectX::SimpleMath::Vector3(x_pos, 0, z_pos);
 }
 
-void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
+void TinyObjLightModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,
 	ID3D11Buffer*& n_buf, ID3D11Buffer*& t_buf,
 	ID3D11Buffer*& str_buf, TinyMaterial*& out_materials,
 	TinyShape*& out_shapes, int& elem_count, float& radius)
@@ -120,7 +111,7 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*&
 	res_data.pSysMem = &indexes[0];
 	game->device->CreateBuffer(&buf_desc, &res_data, &str_buf);
 
-	out_materials = new TinyMaterial[materials.size()]; // todo: define tinymaterials
+	out_materials = new TinyMaterial[materials.size()];
 	for (UINT i = 0; i < materials.size(); i++)
 	{
 
@@ -136,12 +127,12 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*&
 	}
 }
 
-void TinyObjModelComponent::Initialize()
+void TinyObjLightModelComponent::Initialize()
 {
 	ID3DBlob* error_code = nullptr;
 
 	auto res = D3DCompileFromFile(
-		L"../Shaders/TinyModelShader.hlsl",
+		L"../Shaders/TinyLightShader.hlsl",
 		nullptr,
 		nullptr,
 		"VSMain", "vs_5_0",
@@ -158,7 +149,7 @@ void TinyObjModelComponent::Initialize()
 		}
 		else
 		{
-			MessageBox(game->display->hWnd, L"../Shaders/TinyModelShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 		return;
 	}
@@ -170,7 +161,7 @@ void TinyObjModelComponent::Initialize()
 
 
 	res = D3DCompileFromFile(
-		L"../Shaders/TinyModelShader.hlsl",
+		L"../Shaders/TinyLightShader.hlsl",
 		nullptr,
 		nullptr,
 		"PSMain", "ps_5_0",
@@ -187,7 +178,7 @@ void TinyObjModelComponent::Initialize()
 		}
 		else
 		{
-			MessageBox(game->display->hWnd, L"../Shaders/TinyModelShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShader.hlsl", L"Missing Shader File", MB_OK);
 		}
 		return;
 	}
@@ -203,37 +194,13 @@ void TinyObjModelComponent::Initialize()
 	str_buf_ = nullptr;
 	materials_ = nullptr;
 	shapes_ = nullptr;
-	/*D3D11_INPUT_ELEMENT_DESC inputElements[] = {
-	D3D11_INPUT_ELEMENT_DESC {
-		"POSITION",
-		0,
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		0,
-		0,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		0},
-	D3D11_INPUT_ELEMENT_DESC {
-		"COLOR",
-		0,
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		0,
-		D3D11_APPEND_ALIGNED_ELEMENT,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		0}
-	};
 
-	res = game->device->CreateInputLayout(
-		inputElements,
-		2,
-		vertex_shader_byte_code_->GetBufferPointer(),
-		vertex_shader_byte_code_->GetBufferSize(),
-		&layout_);*/
-
-	TinyObjModelComponent::LoadTinyModel(model_name_, v_buf_, n_buf_, t_buf_, str_buf_, materials_, shapes_, elem_count_, radius);
-
+	TinyObjLightModelComponent::LoadTinyModel(model_name_, v_buf_, n_buf_, t_buf_, str_buf_, materials_, shapes_, elem_count_, radius);
 	radius *= scale_ * 0.5;
 	start_radius = radius;
 	std::cout << model_name_ << " radius:     " << radius << std::endl;
+
+
 	D3D11_BUFFER_DESC desc_buf = {};
 	v_buf_->GetDesc(&desc_buf);
 
@@ -267,13 +234,17 @@ void TinyObjModelComponent::Initialize()
 	const_buf_desc.CPUAccessFlags = 0;
 	const_buf_desc.MiscFlags = 0;
 	const_buf_desc.StructureByteStride = 0;
-	const_buf_desc.ByteWidth = sizeof(ConstDataBuf); // todo
-
+	const_buf_desc.ByteWidth = sizeof(ConstDataBuff);
 
 	game->device->CreateBuffer(&const_buf_desc, nullptr, &constant_buffer_);
 
+	const_buf_desc.ByteWidth = sizeof(LightStruct);
+	game->device->CreateBuffer(&const_buf_desc, nullptr, &light_buffer_);
+
+
+
 	CD3D11_RASTERIZER_DESC rast_desc = {};
-	rast_desc.CullMode = D3D11_CULL_FRONT;
+	rast_desc.CullMode = D3D11_CULL_FRONT; // TODO
 	rast_desc.FillMode = D3D11_FILL_SOLID;
 	//rast_desc.AntialiasedLineEnable = true;
 	rast_desc.MultisampleEnable = true;
@@ -293,6 +264,7 @@ void TinyObjModelComponent::Initialize()
 	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	game->device->CreateBlendState(&blend_desc, &blend_state_);
 
+
 	D3D11_SAMPLER_DESC sampler_desc = {};
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -310,7 +282,7 @@ void TinyObjModelComponent::Initialize()
 	int total = 0;
 	for (int i = 0; i < elem_count_; i++)
 	{
-		total += shapes_[i].Count; //todo
+		total += shapes_[i].Count;
 	}
 
 	int* indexes = new int[total];
@@ -322,7 +294,7 @@ void TinyObjModelComponent::Initialize()
 
 
 	D3D11_BUFFER_DESC indDesc = {};
-	indDesc.Usage = D3D11_USAGE_DEFAULT;
+	indDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	indDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indDesc.CPUAccessFlags = 0;
 	indDesc.MiscFlags = 0;
@@ -340,7 +312,7 @@ void TinyObjModelComponent::Initialize()
 	delete[] indexes;
 }
 
-void TinyObjModelComponent::Update(float delta_time)
+void TinyObjLightModelComponent::Update(float delta_time)
 {
 	const float s = 0.05f;
 	if (is_main_)
@@ -409,12 +381,30 @@ void TinyObjModelComponent::Update(float delta_time)
 
 	auto proj = final_matrix * camera_->GetCameraMatrix();
 
+	data.world = final_matrix; // todo: check
 	data.wvp = proj;
+
+	const auto viewer_pos = camera_->GetPosition();
+	data.viewer_position = DirectX::SimpleMath::Vector4(viewer_pos.x, viewer_pos.y, viewer_pos.z, 1.0f);
+
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
+
+	DirectX::SimpleMath::Vector3 up_axis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
+
+	light.color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	light.direction = DirectX::SimpleMath::Vector4(light_direction.x, light_direction.y, light_direction.z, 0.0f); //todo check last arg 0 or 1
+	//light.direction.Normalize();
+	light.ka_spec_pow_ks_x = DirectX::SimpleMath::Vector4{ ambient, spec_pow, spec_coef, 0.0f };
+
+
+
+
+
+	game->context->UpdateSubresource(light_buffer_, 0, nullptr, &light, 0, 0);
 }
 
 
-void TinyObjModelComponent::Draw(float delta_time)
+void TinyObjLightModelComponent::Draw(float delta_time)
 {
 	auto context = game->context;
 	ID3D11RasterizerState* old_state;
@@ -435,7 +425,10 @@ void TinyObjModelComponent::Draw(float delta_time)
 	ID3D11ShaderResourceView* srvs[] = { v_SRV_, n_SRV_, t_SRV_, str_SRV_ };
 	context->VSSetShaderResources(0, 4, srvs);
 
+	ID3D11Buffer* buffers[] ={constant_buffer_,light_buffer_};
+
 	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
+	context->PSSetConstantBuffers(0, 2, buffers);
 	context->PSSetSamplers(0, 1, &sampler_);
 
 	for (int i = 0; i < elem_count_; i++)
@@ -455,12 +448,12 @@ void TinyObjModelComponent::Draw(float delta_time)
 
 }
 
-TinyObjModelComponent::~TinyObjModelComponent()
+TinyObjLightModelComponent::~TinyObjLightModelComponent()
 {
-	TinyObjModelComponent::DestroyResources();
+	TinyObjLightModelComponent::DestroyResources();
 }
 
-void TinyObjModelComponent::DestroyResources()
+void TinyObjLightModelComponent::DestroyResources()
 {
 	delete[] materials_;
 	delete[] shapes_;

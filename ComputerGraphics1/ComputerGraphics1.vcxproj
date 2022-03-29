@@ -168,6 +168,7 @@
     <ClCompile Include="PongPanelComponent.cpp" />
     <ClCompile Include="SimpleMath.cpp" />
     <ClCompile Include="SolarGame.cpp" />
+    <ClCompile Include="TinyObjLightModelComponent.cpp" />
     <ClCompile Include="SphereComponent.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TinyObjModelComponent.cpp" />
@@ -197,6 +198,8 @@
     <ClInclude Include="SolarGame.h" />
     <ClInclude Include="SphereComponent.h" />
     <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="TinyObjComponent.h" />
+    <ClInclude Include="TinyObjLightModelComponent.h" />
     <ClInclude Include="TinyObjModelComponent.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="TPCameraController.h" />
