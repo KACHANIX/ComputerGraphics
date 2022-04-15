@@ -161,6 +161,7 @@
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="KatamariGame.cpp" />
+    <ClCompile Include="LightSource.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PlaneComponent.cpp" />
     <ClCompile Include="PongBallComponent.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="KatamariGame.h" />
     <ClInclude Include="Keys.h" />
+    <ClInclude Include="LightSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PlaneComponent.h" />
     <ClInclude Include="PongBallComponent.h" />

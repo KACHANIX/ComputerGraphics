@@ -2,7 +2,6 @@ struct ConstantData
 {
 	float4x4 world;
 	float4x4 wvp;
-	float4x4 invert_transpose_world;
 	float4 viewer_position;
 };
 struct LightData
@@ -70,12 +69,16 @@ float4 PSMain(PS_IN input) : SV_Target
 
 	float3 kd = diff_val.xyz;
 	float3 normal = normalize(input.normal.xyz);
-
+	float3 vec_dir__ = Lights.direction.xyz - input.world_pos.xyz;
 	float3 view_dir = normalize(ConstData.viewer_position.xyz - input.world_pos.xyz);
-	float3 light_dir = -Lights.direction.xyz;
+	float3 light_dir = normalize(vec_dir__);
 	float3 ref_vec = normalize(reflect(light_dir,normal));
+ 
+ 	float dist = max(1,length(vec_dir__));
+	float att = (1 / (dist ));
+	float3 diffuse = max(0, dot(light_dir, normal)) * kd /** att*/;
 
-	float3 diffuse = max(0, dot(light_dir, normal)) * kd;
+
 	float3 ambient = kd * Lights.ka_spec_pow_ks_x.x;
 	float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z;
 	return float4(Lights.color.xyz * (diffuse + ambient + spec), 1.0f);

@@ -10,13 +10,13 @@
 #include "InputDevice.h"
 #include "Keys.h"
 
- 
+
 TinyObjLightModelComponent::TinyObjLightModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
-	float scale, float x_pos, float z_pos, bool in_is_main) :TinyObjComponent(in_game)
+	float scale, float x_pos, float z_pos, LightSource* light_source_in, bool in_is_main) :TinyObjComponent(in_game)
 {
 	scale_ = scale;
 	transform *= DirectX::SimpleMath::Matrix::CreateScale(scale_);
-
+	light_source_ = light_source_in;
 	camera_ = in_camera;
 	model_name_ = in_file_name;
 	is_main_ = in_is_main;
@@ -132,7 +132,8 @@ void TinyObjLightModelComponent::Initialize()
 	ID3DBlob* error_code = nullptr;
 
 	auto res = D3DCompileFromFile(
-		L"../Shaders/TinyLightShader.hlsl",
+
+		L"../Shaders/TinyLightShaderShadow.hlsl",
 		nullptr,
 		nullptr,
 		"VSMain", "vs_5_0",
@@ -149,7 +150,7 @@ void TinyObjLightModelComponent::Initialize()
 		}
 		else
 		{
-			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShaderShadow.hlsl", L"Missing Shader File", MB_OK);
 		}
 		return;
 	}
@@ -161,7 +162,7 @@ void TinyObjLightModelComponent::Initialize()
 
 
 	res = D3DCompileFromFile(
-		L"../Shaders/TinyLightShader.hlsl",
+		L"../Shaders/TinyLightShaderShadow.hlsl",
 		nullptr,
 		nullptr,
 		"PSMain", "ps_5_0",
@@ -178,7 +179,7 @@ void TinyObjLightModelComponent::Initialize()
 		}
 		else
 		{
-			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShader.hlsl", L"Missing Shader File", MB_OK);
+			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShaderShadow.hlsl", L"Missing Shader File", MB_OK);
 		}
 		return;
 	}
@@ -269,8 +270,8 @@ void TinyObjLightModelComponent::Initialize()
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	sampler_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampler_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	sampler_desc.BorderColor[0] = 1.0f;
 	sampler_desc.BorderColor[1] = 0.0f;
 	sampler_desc.BorderColor[2] = 0.0f;
@@ -381,25 +382,19 @@ void TinyObjLightModelComponent::Update(float delta_time)
 
 	auto proj = final_matrix * camera_->GetCameraMatrix();
 
-	data.world = final_matrix; // todo: check
+	data.world = final_matrix;
 	data.wvp = proj;
-
 	const auto viewer_pos = camera_->GetPosition();
 	data.viewer_position = DirectX::SimpleMath::Vector4(viewer_pos.x, viewer_pos.y, viewer_pos.z, 1.0f);
-
+	data.lightvp = light_source_->GetViewMatrix() * light_source_->GetProjMatrix(); // TODO
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
 
 	DirectX::SimpleMath::Vector3 up_axis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
 
-	light.color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-	light.direction = DirectX::SimpleMath::Vector4(light_direction.x, light_direction.y, light_direction.z, 0.0f); //todo check last arg 0 or 1
+	light.color = light_source_->color;
+	light.position = DirectX::SimpleMath::Vector4(light_source_->position.x, light_source_->position.y, light_source_->position.z, 0.0f);
 	//light.direction.Normalize();
-	light.ka_spec_pow_ks_x = DirectX::SimpleMath::Vector4{ ambient, spec_pow, spec_coef, 0.0f };
-
-
-
-
-
+	light.ka_spec_pow_ks_x = DirectX::SimpleMath::Vector4{ light_source_->ambient, light_source_->spec_pow, light_source_->spec_coef, 0.0f };
 	game->context->UpdateSubresource(light_buffer_, 0, nullptr, &light, 0, 0);
 }
 
@@ -421,14 +416,17 @@ void TinyObjLightModelComponent::Draw(float delta_time)
 
 	context->VSSetShader(vertex_shader_, nullptr, 0);
 	context->PSSetShader(pixel_shader_, nullptr, 0);
-
+	   
 	ID3D11ShaderResourceView* srvs[] = { v_SRV_, n_SRV_, t_SRV_, str_SRV_ };
 	context->VSSetShaderResources(0, 4, srvs);
 
-	ID3D11Buffer* buffers[] ={constant_buffer_,light_buffer_};
+	ID3D11Buffer* buffers[] = { constant_buffer_,light_buffer_ };
 
-	context->VSSetConstantBuffers(0, 1, &constant_buffer_);
+	//context->VSSetConstantBuffers(0, 1, &constant_buffer_);
+	context->VSSetConstantBuffers(0, 2, buffers);
 	context->PSSetConstantBuffers(0, 2, buffers);
+	//context->PSSetShaderResources(1, 1, depthmap);// todo
+
 	context->PSSetSamplers(0, 1, &sampler_);
 
 	for (int i = 0; i < elem_count_; i++)

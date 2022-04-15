@@ -3,6 +3,7 @@
 #include "Camera.h" 
 #include <d3d11.h> 
 
+#include "LightSource.h"
 #include "TinyObjComponent.h"
 
 #pragma pack(push, 4)
@@ -10,9 +11,8 @@ struct ConstDataBuff
 {
 	DirectX::SimpleMath::Matrix world;
 	DirectX::SimpleMath::Matrix wvp;
-	DirectX::SimpleMath::Matrix invert_transpose_world;
+	DirectX::SimpleMath::Matrix lightvp;
 	DirectX::SimpleMath::Vector4 viewer_position;
-
 };
 #pragma pack(pop)
 
@@ -20,7 +20,7 @@ struct ConstDataBuff
 #pragma pack(push, 4)
 struct LightStruct
 {
-	DirectX::SimpleMath::Vector4 direction;
+	DirectX::SimpleMath::Vector4 position;
 	DirectX::SimpleMath::Vector4 color;
 	DirectX::SimpleMath::Vector4 ka_spec_pow_ks_x;
 };
@@ -61,18 +61,15 @@ class TinyObjLightModelComponent : public TinyObjComponent
 	float scale_;
 	bool is_main_;
 
+	LightSource* light_source_;
+
 public:
 	ConstDataBuff data = {};
 	LightStruct light = {};
-
-	float ambient = 0.1f;
-	float spec_pow = 50.4f;
-	float spec_coef = 0.25f;
-
-	DirectX::SimpleMath::Vector3 light_direction = { 0.0f, -1.0f, 0.0f };
+	
 
 	TinyObjLightModelComponent(Game* in_game, Camera* in_camera, char* in_file_name,
-		float scale, float x_pos = 0, float z_pos = 0, bool in_is_main = false);
+		float scale, float x_pos , float z_pos ,LightSource* light_source_in, bool in_is_main = false);
 	~TinyObjLightModelComponent();
 
 	virtual void Initialize() override;
