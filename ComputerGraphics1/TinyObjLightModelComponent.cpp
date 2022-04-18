@@ -245,7 +245,7 @@ void TinyObjLightModelComponent::Initialize()
 
 
 	CD3D11_RASTERIZER_DESC rast_desc = {};
-	rast_desc.CullMode = D3D11_CULL_FRONT; // TODO
+	rast_desc.CullMode = D3D11_CULL_FRONT; 
 	rast_desc.FillMode = D3D11_FILL_SOLID;
 	//rast_desc.AntialiasedLineEnable = true;
 	rast_desc.MultisampleEnable = true;
@@ -386,7 +386,7 @@ void TinyObjLightModelComponent::Update(float delta_time)
 	data.wvp = proj;
 	const auto viewer_pos = camera_->GetPosition();
 	data.viewer_position = DirectX::SimpleMath::Vector4(viewer_pos.x, viewer_pos.y, viewer_pos.z, 1.0f);
-	data.lightvp = light_source_->GetViewMatrix() * light_source_->GetProjMatrix(); // TODO
+	data.lightvp = light_source_->GetViewMatrix() * light_source_->GetProjMatrix(); 
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
 
 	DirectX::SimpleMath::Vector3 up_axis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
@@ -425,7 +425,6 @@ void TinyObjLightModelComponent::Draw(float delta_time)
 	//context->VSSetConstantBuffers(0, 1, &constant_buffer_);
 	context->VSSetConstantBuffers(0, 2, buffers);
 	context->PSSetConstantBuffers(0, 2, buffers);
-	//context->PSSetShaderResources(1, 1, depthmap);// todo
 
 	context->PSSetSamplers(0, 1, &sampler_);
 
@@ -435,6 +434,7 @@ void TinyObjLightModelComponent::Draw(float delta_time)
 		auto material = materials_[shape.MaterialInd];
 
 		context->PSSetShaderResources(0, 1, &material.DiffSRV);
+		context->PSSetShaderResources(1, 1, &(light_source_->shadow_depth_resource_view));// todo
 		context->DrawIndexed(shape.Count, shape.StartIndex, 0);
 	}
 

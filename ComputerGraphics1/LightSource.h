@@ -12,11 +12,15 @@ public:
 	DirectX::SimpleMath::Vector3 position;
 
 
+	ID3D11Texture2D* shadow_depth_buffer = nullptr;
+	ID3D11ShaderResourceView* shadow_depth_resource_view = nullptr; // r32float shaderResourceview
+	ID3D11DepthStencilView* depth_view = nullptr;
+	ID3D11DepthStencilState* shadow_depth_state; //d32float 
 	float ambient = 0.1f;
 	float spec_pow = 50.0f;
 	float spec_coef = 0.25f;
 
-	LightSource();
+	LightSource(Game* in_game);
 
 	void GenerateViewMatrix();
 	DirectX::SimpleMath::Matrix GetViewMatrix();

@@ -9,7 +9,7 @@ TPCameraController::TPCameraController(Game* in_game, Camera* in_camera, GameCom
 	yaw = 0;
 	pitch = 0;
 	parent = in_parent;
-	game_->input_device->MouseMove.AddRaw(this, &TPCameraController::OnMouseMove); // TODO multiple controllers
+	game_->input_device->MouseMove.AddRaw(this, &TPCameraController::OnMouseMove);
 
 	//camera_position = DirectX::SimpleMath::Vector3(-2.0f, 0.0f, 0.0f);
 }

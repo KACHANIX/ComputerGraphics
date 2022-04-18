@@ -1,6 +1,7 @@
 #include "Game.h"
 
 #include <iostream> 
+#include "LightSource.h"
 
 #include "InputDevice.h"
 
@@ -20,7 +21,7 @@ void Game::Initialize()
 
 void Game::RestoreTargets()
 {
-	context->OMSetRenderTargets(1, &render_view, depth_view);
+	context->OMSetRenderTargets(1, &render_view, depth_view); // TODO: swap depth_view???
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(display->ClientWidth);
 	viewport.Height = static_cast<float>(display->ClientHeight);
@@ -30,6 +31,31 @@ void Game::RestoreTargets()
 	viewport.MaxDepth = 1.0f;
 
 	context->RSSetViewports(1, &viewport);
+	context->RSSetState(rast_state);
+
+	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	context->ClearRenderTargetView(render_view, color);
+
+	context->ClearDepthStencilView(depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+void Game::RestoreTargets(ID3D11DepthStencilView* in_depth_view)
+{
+	context->OMSetRenderTargets(1, &render_view, in_depth_view); // TODO: swap depth_view???
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = static_cast<float>(display->ClientWidth);
+	viewport.Height = static_cast<float>(display->ClientHeight);
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.MinDepth = 0;
+	viewport.MaxDepth = 1.0f;
+
+	context->RSSetViewports(1, &viewport);
+	context->RSSetState(rast_state);
+
+	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	context->ClearRenderTargetView(render_view, color);
+
+	context->ClearDepthStencilView(in_depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
 Game::~Game()
@@ -88,6 +114,13 @@ void Game::Update(float delta_time)
 
 void Game::Draw(float delta_time)
 {
+	RestoreTargets((light_source_->depth_view));
+	for (GameComponent* component : components)
+	{
+		component->Draw(delta_time);
+	}
+
+	RestoreTargets();
 	for (GameComponent* component : components)
 	{
 		component->Draw(delta_time);

@@ -120,7 +120,7 @@ void TinyObjModelComponent::LoadTinyModel(const char* model_name, ID3D11Buffer*&
 	res_data.pSysMem = &indexes[0];
 	game->device->CreateBuffer(&buf_desc, &res_data, &str_buf);
 
-	out_materials = new TinyMaterial[materials.size()]; // todo: define tinymaterials
+	out_materials = new TinyMaterial[materials.size()]; 
 	for (UINT i = 0; i < materials.size(); i++)
 	{
 
@@ -267,7 +267,7 @@ void TinyObjModelComponent::Initialize()
 	const_buf_desc.CPUAccessFlags = 0;
 	const_buf_desc.MiscFlags = 0;
 	const_buf_desc.StructureByteStride = 0;
-	const_buf_desc.ByteWidth = sizeof(ConstDataBuf); // todo
+	const_buf_desc.ByteWidth = sizeof(ConstDataBuf); 
 
 
 	game->device->CreateBuffer(&const_buf_desc, nullptr, &constant_buffer_);
@@ -310,7 +310,7 @@ void TinyObjModelComponent::Initialize()
 	int total = 0;
 	for (int i = 0; i < elem_count_; i++)
 	{
-		total += shapes_[i].Count; //todo
+		total += shapes_[i].Count; 
 	}
 
 	int* indexes = new int[total];

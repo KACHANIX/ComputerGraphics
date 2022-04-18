@@ -11,7 +11,8 @@ void KatamariGame::Initialize()
 
 	cam = new Camera(this);
 	char* a = (char*)"../Objs/basketball.obj";
-	LightSource* ls = new LightSource();
+	LightSource* ls = new LightSource(this);
+	this->light_source_ = ls;
 	GameComponent* t_obj = new TinyObjLightModelComponent(this, cam, (char*)"../Objs/basketball.obj",
 		0.01f, 0, 0, ls, true);
 	GameComponent* t_obj_1 = new TinyObjLightModelComponent(this, cam, (char*)"../Objs/basketball.obj",

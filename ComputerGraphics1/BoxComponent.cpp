@@ -200,7 +200,7 @@ void BoxComponent::Initialize()
 	const_buff_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	const_buff_desc.MiscFlags = 0;
 	const_buff_desc.StructureByteStride = 0;
-	const_buff_desc.ByteWidth = sizeof(DirectX::SimpleMath::Matrix); //TODO CHECK MATRIX
+	const_buff_desc.ByteWidth = sizeof(DirectX::SimpleMath::Matrix); 
 	res = game->device->CreateBuffer(&const_buff_desc, nullptr, &constant_buffer_);
 
 #pragma endregion Initialize buffers

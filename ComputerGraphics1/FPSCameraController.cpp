@@ -8,7 +8,7 @@ FPSCameraController::FPSCameraController(Game* in_game, Camera* in_camera)
 	yaw = 0;
 	pitch = 0;
 
-	game_->input_device->MouseMove.AddRaw(this, &FPSCameraController::OnMouseMove); // TODO multiple controllers
+	game_->input_device->MouseMove.AddRaw(this, &FPSCameraController::OnMouseMove); 
 
 	camera_position = DirectX::SimpleMath::Vector3(-2.0f, 0.0f, 0.0f);
 }

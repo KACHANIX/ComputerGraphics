@@ -14,9 +14,11 @@
 #pragma comment(lib, "dxguid.lib")
 #include <d3d11_1.h> 
 #include <vector>
+
 #include "SimpleMath.h"
 #include "TextureLoader.h"
 class InputDevice;
+class LightSource;
 
 class Game
 {
@@ -52,7 +54,7 @@ public:
 
 	bool is_exit_requested = false;
 	bool is_active = false;
-
+	LightSource* light_source_ = nullptr;
 	TextureLoader* texture_loader = nullptr;
 
 	Game(LPCWSTR window_name);
@@ -60,6 +62,7 @@ public:
 
 	void Exit();
 	void RestoreTargets();
+	void RestoreTargets(ID3D11DepthStencilView* in_depth_view);
 	void Run(int window_width, int window_height);
 	virtual LRESULT MessageHandler(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 
