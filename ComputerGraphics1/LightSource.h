@@ -23,9 +23,9 @@ public:
 	LightSource(Game* in_game);
 
 	void GenerateViewMatrix();
+	void GenerateProjectionMatrix();
 	DirectX::SimpleMath::Matrix GetViewMatrix();
 	DirectX::SimpleMath::Matrix GetProjMatrix();
 	void SetLookAt(float x, float y, float z);
-	void UpdateProjectionMatrix();
 
 };

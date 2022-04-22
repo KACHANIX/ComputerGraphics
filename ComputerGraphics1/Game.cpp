@@ -21,7 +21,9 @@ void Game::Initialize()
 
 void Game::RestoreTargets()
 {
-	context->OMSetRenderTargets(1, &render_view, depth_view); // TODO: swap depth_view???
+	context->ClearState(); 
+	context->OMSetDepthStencilState(light_source_->shadow_depth_state, 1); // todo
+	context->OMSetRenderTargets(1, &render_view, depth_view);
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(display->ClientWidth);
 	viewport.Height = static_cast<float>(display->ClientHeight);
@@ -33,14 +35,18 @@ void Game::RestoreTargets()
 	context->RSSetViewports(1, &viewport);
 	context->RSSetState(rast_state);
 
+
 	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	context->ClearRenderTargetView(render_view, color);
 
-	context->ClearDepthStencilView(depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	context->ClearDepthStencilView(depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0); //todo
+
 }
 void Game::RestoreTargets(ID3D11DepthStencilView* in_depth_view)
 {
-	context->OMSetRenderTargets(1, &render_view, in_depth_view); // TODO: swap depth_view???
+	context->ClearState();
+	context->OMSetDepthStencilState(light_source_->shadow_depth_state, 1);//todo
+	context->OMSetRenderTargets(1, &render_view, in_depth_view); 
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(display->ClientWidth);
 	viewport.Height = static_cast<float>(display->ClientHeight);
@@ -54,8 +60,8 @@ void Game::RestoreTargets(ID3D11DepthStencilView* in_depth_view)
 
 	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	context->ClearRenderTargetView(render_view, color);
-
-	context->ClearDepthStencilView(in_depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	 
+	context->ClearDepthStencilView(in_depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);//todo
 }
 
 Game::~Game()
@@ -114,19 +120,16 @@ void Game::Update(float delta_time)
 
 void Game::Draw(float delta_time)
 {
-	RestoreTargets((light_source_->depth_view));
+	RestoreTargets(light_source_->depth_view); 
 	for (GameComponent* component : components)
 	{
 		component->DrawLight(delta_time);
 
 	}
+	  
+	//context->OMSetRenderTargets(1, &render_view, depth_view); // TODO: swap depth_view???
+	RestoreTargets();
 
-	//RestoreTargets();
-	context->OMSetRenderTargets(1, &render_view, depth_view); // TODO: swap depth_view???
-	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	context->ClearRenderTargetView(render_view, color);
-
-	//context->ClearDepthStencilView(light_source_->depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (GameComponent* component : components)
 	{
 		component->Draw(delta_time);
@@ -173,8 +176,7 @@ void Game::PrepareFrame()
 {
 
 	context->ClearState();
-
-	context->OMSetRenderTargets(1, &render_view, depth_view); //depth nahui, 0 instead of 1
+	context->OMSetRenderTargets(1, &render_view, depth_view);
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(display->ClientWidth);
@@ -207,7 +209,7 @@ void Game::UpdateInternal()
 	total_time += delta_time;
 
 	Update(delta_time);
-	PrepareFrame();
+	//PrepareFrame();
 	Draw(delta_time);
 	PostDraw(delta_time);
 	EndFrame();

@@ -41,6 +41,7 @@ struct Inds
 Texture2D DiffuseMap : register(t0);
 Texture2D ShadowMap : register(t1);
 SamplerState Sampler : register(s0);
+SamplerComparisonState Sampler2 : register(s1);
 
 Buffer<float3> Positions : register(t0);
 Buffer<float3> Normals : register(t1);
@@ -135,6 +136,6 @@ float4 PSMainLight( PS_IN input ) : SV_Target
 	// float4 color = DiffuseMap.Sample(Sampler, float2(input.tex.x, 1.0f - input.tex.y));
 	// clip(color.a - 0.01f);
 	// return color;
-	return float4(1.0f,1.0f,1.0f,1.0f);
+	return float4(1.0f,0.0f,0.0f,1.0f);
 
 }

@@ -306,7 +306,7 @@ void TinyObjLightModelComponent::Initialize()
 
 
 	CD3D11_RASTERIZER_DESC rast_desc = {};
-	rast_desc.CullMode = D3D11_CULL_FRONT; 
+	rast_desc.CullMode = D3D11_CULL_FRONT;
 	rast_desc.FillMode = D3D11_FILL_SOLID;
 	//rast_desc.AntialiasedLineEnable = true;
 	rast_desc.MultisampleEnable = true;
@@ -344,7 +344,7 @@ void TinyObjLightModelComponent::Initialize()
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampler_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;// D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampler_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 	sampler_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	sampler_desc.BorderColor[0] = 1.0f;
 	sampler_desc.BorderColor[1] = 0.0f;
@@ -460,7 +460,7 @@ void TinyObjLightModelComponent::Update(float delta_time)
 	data.wvp = proj;
 	const auto viewer_pos = camera_->GetPosition();
 	data.viewer_position = DirectX::SimpleMath::Vector4(viewer_pos.x, viewer_pos.y, viewer_pos.z, 1.0f);
-	data.lightvp = light_source_->GetViewMatrix() * light_source_->GetProjMatrix(); 
+	data.lightvp = light_source_->GetViewMatrix() * light_source_->GetProjMatrix();
 	game->context->UpdateSubresource(constant_buffer_, 0, nullptr, &data, 0, 0);
 
 	DirectX::SimpleMath::Vector3 up_axis = DirectX::SimpleMath::Vector3(0.0f, 1.0f, 0.0f);
@@ -490,13 +490,12 @@ void TinyObjLightModelComponent::Draw(float delta_time)
 
 	context->VSSetShader(vertex_shader_, nullptr, 0);
 	context->PSSetShader(pixel_shader_, nullptr, 0);
-	   
+
 	ID3D11ShaderResourceView* srvs[] = { v_SRV_, n_SRV_, t_SRV_, str_SRV_ };
 	context->VSSetShaderResources(0, 4, srvs);
 
 	ID3D11Buffer* buffers[] = { constant_buffer_,light_buffer_ };
 
-	//context->VSSetConstantBuffers(0, 1, &constant_buffer_);
 	context->VSSetConstantBuffers(0, 2, buffers);
 	context->PSSetConstantBuffers(0, 2, buffers);
 
@@ -546,9 +545,9 @@ void TinyObjLightModelComponent::DrawLight(float delta_time)
 
 	//context->VSSetConstantBuffers(0, 1, &constant_buffer_);
 	context->VSSetConstantBuffers(0, 2, buffers);
-	//context->PSSetConstantBuffers(0, 2, buffers);
+	context->PSSetConstantBuffers(0, 2, buffers);
 
-	context->PSSetSamplers(0, 1, &sampler_);
+	//context->PSSetSamplers(0, 1, &sampler_);
 	//context->PSSetShaderResources(1, 1, &(light_source_->shadow_depth_resource_view));// todo
 
 	for (int i = 0; i < elem_count_; i++)
