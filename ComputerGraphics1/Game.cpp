@@ -117,10 +117,16 @@ void Game::Draw(float delta_time)
 	RestoreTargets((light_source_->depth_view));
 	for (GameComponent* component : components)
 	{
-		component->Draw(delta_time);
+		component->DrawLight(delta_time);
+
 	}
 
-	RestoreTargets();
+	//RestoreTargets();
+	context->OMSetRenderTargets(1, &render_view, depth_view); // TODO: swap depth_view???
+	float color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	context->ClearRenderTargetView(render_view, color);
+
+	//context->ClearDepthStencilView(light_source_->depth_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	for (GameComponent* component : components)
 	{
 		component->Draw(delta_time);

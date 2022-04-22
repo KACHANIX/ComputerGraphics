@@ -110,24 +110,31 @@ float4 PSMain(PS_IN input) : SV_Target
 	} 
 
 	return float4(Lights.color.xyz * color,1.0f) ;
+}
 
 
-
-	//float4 diff_val = DiffuseMap.Sample(Sampler, float2(input.tex.x, 1.0f - input.tex.y));
-	//clip(diff_val.a - bias);
-	//
-	//float3 kd = diff_val.xyz;
-	//float3 normal = normalize(input.normal.xyz);
-	//float3 vec_dir__ = Lights.position.xyz - input.world_pos.xyz;
-	//float3 light_dir = normalize(vec_dir__);
-	//float3 diffuse = max(0, dot(light_dir, normal)) * kd /** att*/;
-	//
-	//float3 ambient = kd * Lights.ka_spec_pow_ks_x.x;
-	//
-	//float3 view_dir = normalize(ConstData.viewer_position.xyz - input.world_pos.xyz);
-	//float3 ref_vec = normalize(reflect(light_dir,normal));
-	//float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z;
-	//return float4(Lights.color.xyz * (diffuse + ambient + spec), 1.0f);
+PS_IN VSMainLight(uint index : SV_VertexID)
+{
+	PS_IN output = (PS_IN)0;
 	
-	//return color;
+	Inds inds = Indexes[index /* + ConstData.indexOffset*/];
+
+	float3 pos = Positions[inds.pInd];
+	float3 normal = Normals[inds.nInd];
+	float2 tex = TexCoords[inds.tInd];
+
+	output.pos = mul(mul(float4(pos, 1.0f), ConstData.world), ConstData.lightvp);
+	output.normal = float4(normal, 0.0f);
+	output.tex = tex;
+	
+	return output;
+}
+
+float4 PSMainLight( PS_IN input ) : SV_Target
+{
+	// float4 color = DiffuseMap.Sample(Sampler, float2(input.tex.x, 1.0f - input.tex.y));
+	// clip(color.a - 0.01f);
+	// return color;
+	return float4(1.0f,1.0f,1.0f,1.0f);
+
 }

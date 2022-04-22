@@ -23,6 +23,8 @@ public:
 	GameComponent* parent = nullptr;
 	virtual void DestroyResources() = 0;
 	virtual void Draw(float delta_time) = 0;
+	virtual void DrawLight(float delta_time) = 0;
+
 	virtual void Initialize() = 0;
 	virtual void Reload() = 0;
 	virtual void Update(float delta_time) = 0;

@@ -34,9 +34,15 @@ class TinyObjLightModelComponent : public TinyObjComponent
 	ID3D11VertexShader* vertex_shader_;
 	ID3DBlob* pixel_shader_byte_code_;
 	ID3DBlob* vertex_shader_byte_code_;
+
+	ID3D11PixelShader* pixel_shader_light_;
+	ID3D11VertexShader* vertex_shader_light_;
+	ID3DBlob* pixel_shader_byte_code_light_;
+	ID3DBlob* vertex_shader_byte_code_light_;
 	ID3D11Buffer* constant_buffer_;
 	ID3D11Buffer* light_buffer_;
 	ID3D11SamplerState* sampler_;
+	ID3D11SamplerState* sampler2_;
 	ID3D11RasterizerState* rast_state_;
 	ID3D11BlendState* blend_state_;
 
@@ -75,6 +81,7 @@ public:
 	virtual void Initialize() override;
 	virtual void Update(float delta_time) override;
 	virtual void Draw(float delta_time) override;
+	virtual void DrawLight(float delta_time) override;
 	virtual void DestroyResources() override;
 	virtual void Reload() override {}
 	void LoadTinyModel(const char* model_name, ID3D11Buffer*& v_buf,

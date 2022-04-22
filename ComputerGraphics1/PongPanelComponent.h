@@ -45,6 +45,7 @@ public:
 	virtual void Initialize() override;
 	virtual void DestroyResources() override;
 	virtual void Draw(float delta_time) override;
+	virtual void DrawLight(float delta_time) override{}
 	virtual void Update(float delta_time) override;
 	virtual ConstData GetConstData() ;
 	virtual void Reload() override {}

@@ -184,11 +184,72 @@ void TinyObjLightModelComponent::Initialize()
 		return;
 	}
 
-
 	game->device->CreatePixelShader(pixel_shader_byte_code_->GetBufferPointer(),
 		pixel_shader_byte_code_->GetBufferSize(),
 		nullptr,
 		&pixel_shader_);
+	/// <summary>
+	/// LIGHT SHADERS
+	/// </summary>
+	res = D3DCompileFromFile(
+
+		L"../Shaders/TinyLightShaderShadow.hlsl",
+		nullptr,
+		nullptr,
+		"VSMainLight", "vs_5_0",
+		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR, 0,
+		&vertex_shader_byte_code_light_, &error_code);
+
+	if (FAILED(res))
+	{
+		if (error_code)
+		{
+			char* compileErrors = (char*)(error_code->GetBufferPointer());
+
+			std::cout << compileErrors << std::endl;
+		}
+		else
+		{
+			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShaderShadow.hlsl", L"Missing Shader File", MB_OK);
+		}
+		return;
+	}
+
+	game->device->CreateVertexShader(vertex_shader_byte_code_light_->GetBufferPointer(),
+		vertex_shader_byte_code_light_->GetBufferSize(),
+		nullptr,
+		&vertex_shader_light_);
+
+
+	res = D3DCompileFromFile(
+		L"../Shaders/TinyLightShaderShadow.hlsl",
+		nullptr,
+		nullptr,
+		"PSMainLight", "ps_5_0",
+		D3DCOMPILE_PACK_MATRIX_ROW_MAJOR, 0,
+		&pixel_shader_byte_code_light_, &error_code);
+
+	if (FAILED(res))
+	{
+		if (error_code)
+		{
+			char* compileErrors = (char*)(error_code->GetBufferPointer());
+
+			std::cout << compileErrors << std::endl;
+		}
+		else
+		{
+			MessageBox(game->display->hWnd, L"../Shaders/TinyLightShaderShadow.hlsl", L"Missing Shader File", MB_OK);
+		}
+		return;
+	}
+
+	game->device->CreatePixelShader(pixel_shader_byte_code_light_->GetBufferPointer(),
+		pixel_shader_byte_code_light_->GetBufferSize(),
+		nullptr,
+		&pixel_shader_light_);
+
+
 	v_buf_ = nullptr;
 	n_buf_ = nullptr;
 	t_buf_ = nullptr;
@@ -265,13 +326,12 @@ void TinyObjLightModelComponent::Initialize()
 	blend_desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
 	game->device->CreateBlendState(&blend_desc, &blend_state_);
 
-
 	D3D11_SAMPLER_DESC sampler_desc = {};
 	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	sampler_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-	sampler_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	sampler_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;// D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampler_desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	sampler_desc.BorderColor[0] = 1.0f;
 	sampler_desc.BorderColor[1] = 0.0f;
 	sampler_desc.BorderColor[2] = 0.0f;
@@ -279,6 +339,20 @@ void TinyObjLightModelComponent::Initialize()
 	sampler_desc.MaxLOD = INT_MAX;
 
 	game->device->CreateSamplerState(&sampler_desc, &sampler_);
+
+	sampler_desc = {};
+	sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampler_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;// D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	sampler_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	sampler_desc.BorderColor[0] = 1.0f;
+	sampler_desc.BorderColor[1] = 0.0f;
+	sampler_desc.BorderColor[2] = 0.0f;
+	sampler_desc.BorderColor[3] = 1.0f;
+	sampler_desc.MaxLOD = INT_MAX;
+
+	game->device->CreateSamplerState(&sampler_desc, &sampler2_);
 
 	int total = 0;
 	for (int i = 0; i < elem_count_; i++)
@@ -427,6 +501,8 @@ void TinyObjLightModelComponent::Draw(float delta_time)
 	context->PSSetConstantBuffers(0, 2, buffers);
 
 	context->PSSetSamplers(0, 1, &sampler_);
+	context->PSSetSamplers(1, 1, &sampler2_);
+	context->PSSetShaderResources(1, 1, &(light_source_->shadow_depth_resource_view));// todo
 
 	for (int i = 0; i < elem_count_; i++)
 	{
@@ -434,7 +510,53 @@ void TinyObjLightModelComponent::Draw(float delta_time)
 		auto material = materials_[shape.MaterialInd];
 
 		context->PSSetShaderResources(0, 1, &material.DiffSRV);
-		context->PSSetShaderResources(1, 1, &(light_source_->shadow_depth_resource_view));// todo
+		context->DrawIndexed(shape.Count, shape.StartIndex, 0);
+	}
+
+	context->RSSetState(old_state);
+	if (old_state != nullptr)
+	{
+		old_state->Release();
+	}
+
+}
+
+void TinyObjLightModelComponent::DrawLight(float delta_time)
+{
+	auto context = game->context;
+	ID3D11RasterizerState* old_state;
+	context->RSGetState(&old_state);
+	context->RSSetState(rast_state_);
+
+	float factors[] = { 1.0f,1.0f,1.0f,1.0f };
+	context->OMSetBlendState(blend_state_, factors, 0xFFFFFFFF);
+
+	context->IASetInputLayout(nullptr);
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+	context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
+
+	context->VSSetShader(vertex_shader_light_, nullptr, 0);
+	context->PSSetShader(pixel_shader_light_, nullptr, 0);
+
+	ID3D11ShaderResourceView* srvs[] = { v_SRV_, n_SRV_, t_SRV_, str_SRV_ };
+	context->VSSetShaderResources(0, 4, srvs);
+
+	ID3D11Buffer* buffers[] = { constant_buffer_,light_buffer_ };
+
+	//context->VSSetConstantBuffers(0, 1, &constant_buffer_);
+	context->VSSetConstantBuffers(0, 2, buffers);
+	//context->PSSetConstantBuffers(0, 2, buffers);
+
+	context->PSSetSamplers(0, 1, &sampler_);
+	//context->PSSetShaderResources(1, 1, &(light_source_->shadow_depth_resource_view));// todo
+
+	for (int i = 0; i < elem_count_; i++)
+	{
+		auto shape = shapes_[i];
+		auto material = materials_[shape.MaterialInd];
+
+		//context->PSSetShaderResources(0, 1, &material.DiffSRV);
 		context->DrawIndexed(shape.Count, shape.StartIndex, 0);
 	}
 
