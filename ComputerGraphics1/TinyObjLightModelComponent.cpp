@@ -536,7 +536,7 @@ void TinyObjLightModelComponent::DrawLight(float delta_time)
 	context->IASetIndexBuffer(index_buffer_, DXGI_FORMAT_R32_UINT, 0);
 
 	context->VSSetShader(vertex_shader_light_, nullptr, 0);
-	context->PSSetShader(pixel_shader_light_, nullptr, 0);
+	//context->PSSetShader(pixel_shader_light_, nullptr, 0);
 
 	ID3D11ShaderResourceView* srvs[] = { v_SRV_, n_SRV_, t_SRV_, str_SRV_ };
 	context->VSSetShaderResources(0, 4, srvs);

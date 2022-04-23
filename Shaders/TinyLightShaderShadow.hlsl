@@ -63,7 +63,7 @@ PS_IN VSMain(uint index : SV_VertexID)
 	output.light_view_position = mul(mul(float4(pos,1.0f), ConstData.world),ConstData.lightvp);
 	output.normal = mul(float4(normal, 0.0f), ConstData.world);
 	output.world_pos = mul(float4(pos, 1.0f), ConstData.world);
-	output.light_position = Lights.position.xyz - output.world_pos.xyz; // normalize?
+	output.light_position = Lights.position.xyz - output.world_pos.xyz; 
 	output.tex = tex;
 
 	return output;
@@ -84,33 +84,53 @@ float4 PSMain(PS_IN input) : SV_Target
 	float2 proj_tex_coord;
 	proj_tex_coord.x=((input.light_view_position.x/ input.light_view_position.w)+1.0f)/2.0f;
 	proj_tex_coord.y=-((input.light_view_position.y/ input.light_view_position.w)+1.0f)/2.0f;
+ 
+ /// wtf 
+	float light_depth = input.light_view_position.z / input.light_view_position.w;
+	light_depth -= bias;	
+	float depth = ShadowMap.SampleCmp(Sampler2, proj_tex_coord.xy, light_depth);
 
-	if ((saturate(proj_tex_coord.x) == proj_tex_coord.x) && (saturate(proj_tex_coord.y) == proj_tex_coord.y))
-	{
-		float depth = ShadowMap.Sample(Sampler, proj_tex_coord);
-		float light_depth = input.light_view_position.z / input.light_view_position.w;
-		light_depth -= bias;
-		if (light_depth < depth)
-		{
-			float light_intensity = saturate(dot(input.normal, input.light_position));
+	 
+	float3 normal = normalize(input.normal.xyz);
+	float3 vec_dir__ = Lights.position.xyz - input.world_pos.xyz;
+	float3 light_dir = normalize(vec_dir__);
 
-			if (light_intensity > 0.0f)
-			{ 
-				float3 normal = normalize(input.normal.xyz);
-				float3 vec_dir__ = Lights.position.xyz - input.world_pos.xyz;
-				float3 light_dir = normalize(vec_dir__);
-				float3 diffuse = max(0, dot(light_dir, normal)) * kd /** att*/;
-				
-				float3 view_dir = normalize(ConstData.viewer_position.xyz - input.world_pos.xyz);
-				float3 ref_vec = normalize(reflect(light_dir,normal));
-				float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z;
+	float3 diffuse = max(0, dot(light_dir, normal)) * kd * depth; // todo
+	float3 view_dir = normalize(ConstData.viewer_position.xyz - input.world_pos.xyz);
+	float3 ref_vec = normalize(reflect(light_dir,normal));
+	float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z;
+	color += diffuse + spec; 
 
-				color += diffuse + spec;
-			}
-		}
-	} 
 
 	return float4(Lights.color.xyz * color,1.0f) ;
+
+
+	// if ((saturate(proj_tex_coord.x) == proj_tex_coord.x) && (saturate(proj_tex_coord.y) == proj_tex_coord.y))
+	// {
+	// 	float depth = ShadowMap.Sample(Sampler, proj_tex_coord);
+	// 	float light_depth = input.light_view_position.z / input.light_view_position.w;
+	// 	light_depth -= bias;
+	// 	if (light_depth < depth)
+	// 	{
+	// 		float light_intensity = saturate(dot(input.normal, input.light_position));
+
+	// 		if (light_intensity > 0.0f)
+	// 		{ 
+	// 			float3 normal = normalize(input.normal.xyz);
+	// 			float3 vec_dir__ = Lights.position.xyz - input.world_pos.xyz;
+	// 			float3 light_dir = normalize(vec_dir__);
+	// 			float3 diffuse = max(0, dot(light_dir, normal)) * kd /** att*/;
+				
+	// 			float3 view_dir = normalize(ConstData.viewer_position.xyz - input.world_pos.xyz);
+	// 			float3 ref_vec = normalize(reflect(light_dir,normal));
+	// 			float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z;
+
+	// 			color += diffuse + spec;
+	// 		}
+	// 	}
+	// } 
+
+	// return float4(Lights.color.xyz * color,1.0f) ;
 }
 
 
@@ -136,6 +156,7 @@ float4 PSMainLight( PS_IN input ) : SV_Target
 	// float4 color = DiffuseMap.Sample(Sampler, float2(input.tex.x, 1.0f - input.tex.y));
 	// clip(color.a - 0.01f);
 	// return color;
-	return float4(1.0f,0.0f,0.0f,1.0f);
+	// return float4(1.0f,1.0f,1.0f,1.0f);
+	return float4(1.0f,1.0f,1.0f,0.0f);
 
 }

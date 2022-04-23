@@ -5,7 +5,7 @@
 
 LightSource::LightSource(Game* in_game)
 {
-	position = DirectX::SimpleMath::Vector3(-30, 20, 0);
+	position = DirectX::SimpleMath::Vector3(-20, 5, 0);
 	color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 	SetLookAt(0, 0, 0);
 	game_ = in_game;
@@ -31,6 +31,7 @@ LightSource::LightSource(Game* in_game)
 	depthStenViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 	depthStenViewDesc.Flags = 0;
 	game_->device->CreateDepthStencilView(shadow_depth_buffer, &depthStenViewDesc, &depth_view);
+	//game_->device->CreateDepthStencilView(shadow_depth_buffer, nullptr, &depth_view);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srv_Desc = {};
 	srv_Desc.Format = DXGI_FORMAT_R32_FLOAT;
@@ -65,7 +66,7 @@ LightSource::LightSource(Game* in_game)
 
 	// Create the depth stencil state.
 	game_->device->CreateDepthStencilState(&depthStenDesc, &shadow_depth_state);
-	game_->context->OMSetDepthStencilState(shadow_depth_state, 1);
+	game_->context->OMSetDepthStencilState(shadow_depth_state, 0);
 }
 
 void LightSource::GenerateViewMatrix()
