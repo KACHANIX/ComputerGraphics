@@ -61,6 +61,7 @@ PS_IN VSMain(uint index : SV_VertexID)
 
 	output.pos = mul(float4(pos, 1.0f), ConstData.wvp);
 	output.light_view_position = mul(mul(float4(pos,1.0f), ConstData.world),ConstData.lightvp);
+	output.light_view_position /=output.light_view_position.w;
 	output.normal = mul(float4(normal, 0.0f), ConstData.world);
 	output.world_pos = mul(float4(pos, 1.0f), ConstData.world);
 	output.light_position = Lights.position.xyz - output.world_pos.xyz; 
@@ -82,13 +83,15 @@ float4 PSMain(PS_IN input) : SV_Target
 	float3 color = kd * Lights.ka_spec_pow_ks_x.x; //default output color is ambient light
 
 	float2 proj_tex_coord;
-	proj_tex_coord.x=((input.light_view_position.x/ input.light_view_position.w)+1.0f)/2.0f;
-	proj_tex_coord.y=-((input.light_view_position.y/ input.light_view_position.w)+1.0f)/2.0f;
+	proj_tex_coord.x=((input.light_view_position.x )+1.0f)/2.0f;
+	proj_tex_coord.y=1-((input.light_view_position.y )+1.0f)/2.0f;
  
  /// wtf 
+//  if ((saturate(proj_tex_coord.x) == proj_tex_coord.x) && (saturate(proj_tex_coord.y) == proj_tex_coord.y))
+// {
 	float light_depth = input.light_view_position.z / input.light_view_position.w;
 	light_depth -= bias;	
-	float depth = ShadowMap.SampleCmp(Sampler2, proj_tex_coord.xy, light_depth);
+	float depth = ShadowMap.SampleCmp(Sampler2, proj_tex_coord, input.light_view_position.z);
 
 	 
 	float3 normal = normalize(input.normal.xyz);
@@ -98,10 +101,9 @@ float4 PSMain(PS_IN input) : SV_Target
 	float3 diffuse = max(0, dot(light_dir, normal)) * kd * depth; // todo
 	float3 view_dir = normalize(ConstData.viewer_position.xyz - input.world_pos.xyz);
 	float3 ref_vec = normalize(reflect(light_dir,normal));
-	float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z;
-	color += diffuse + spec; 
-
-
+	float3 spec = pow(max(0, dot(-view_dir, ref_vec)), Lights.ka_spec_pow_ks_x.y) * Lights.ka_spec_pow_ks_x.z * depth;
+	color += diffuse + spec;  
+// }
 	return float4(Lights.color.xyz * color,1.0f) ;
 
 
